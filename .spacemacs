@@ -279,12 +279,24 @@ layers configuration. You are free to put any user code."
   (require 'evil-surround)
   (global-evil-surround-mode 1)
 
+
+
   (define-key evil-normal-state-map (kbd "C-f") 'avy-goto-char-2)
   (global-set-key (kbd "C-f") 'avy-goto-char-2)
   (evil-global-set-key 'normal (kbd "C-f") 'avy-goto-char-2)
 
-  ;(define-key evil-normal-state-map (kbd "{") 'evil-cp-previous-opening)
-  ;(define-key evil-normal-state-map (kbd "}") 'evil-cp-next-closing)
+  ;; it is needed to disable all the cathegory just for a simple change, so we need to rebind all again
+  (setq evil-cleverparens-use-additional-movement-keys nil)
+  (define-key evil-normal-state-map (kbd "L")   'evil-cp-forward-sexp)
+  (define-key evil-normal-state-map (kbd "H")   'evil-cp-backward-sexp)
+  (define-key evil-normal-state-map (kbd "M-l") 'evil-cp-end-of-defun)
+  (define-key evil-normal-state-map (kbd "M-h") 'evil-cp-beginning-of-defun)
+  (define-key evil-normal-state-map (kbd "{")   'evil-cp-previous-opening)  ;change because latin keyboard
+  (define-key evil-normal-state-map (kbd "}")   'evil-cp-next-closing)      ;change because latin keyboard
+  ;(define-key evil-normal-state-map (kbd "[")   'evil-cp-next-opening)     ;not used for simplicity (in lispy [ produces [)
+  ;(define-key evil-normal-state-map (kbd "]")   'evil-cp-previous-closing) ;not used for simplicity (in lispy ] produces {)
+  (define-key evil-normal-state-map (kbd "(")   'evil-cp-backward-up-sexp)
+  (define-key evil-normal-state-map (kbd ")")   'evil-cp-up-sexp)
 
   (eval-after-load "lispy"
   `(progn

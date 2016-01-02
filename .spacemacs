@@ -52,6 +52,8 @@ values."
                                       ;expand-region
 									  ;org-download
                                       isend-mode
+                                      adjust-parens
+                                      paxedit
                                       )
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
@@ -230,8 +232,10 @@ user code."
       (define-key evil-emacs-state-map (kbd "C-u") 'universal-argument)
 
       ;; buffer switching
-      (define-key evil-normal-state-map "J" 'spacemacs/next-useful-buffer)
-      (define-key evil-normal-state-map "K" 'spacemacs/previous-useful-buffer)
+      ;(define-key evil-normal-state-map "J" 'spacemacs/next-useful-buffer)
+      ;(define-key evil-normal-state-map "K" 'spacemacs/previous-useful-buffer)
+      (define-key evil-normal-state-map (kbd "<C-next>") 'spacemacs/previous-useful-buffer)
+      (define-key evil-normal-state-map (kbd "<C-prior>") 'spacemacs/previous-useful-buffer)
 
       ;; iedit-mode
       (define-key global-map (kbd "C-;") 'iedit-mode)
@@ -268,6 +272,9 @@ layers configuration. You are free to put any user code."
   ;(add-hook 'clojure-mode-hook #'enable-paredit-mode)
   (add-hook 'clojure-mode-hook #'aggressive-indent-mode)
 
+  (require 'paxedit)
+  (add-hook 'clojure-mode-hook 'paxedit-mode)
+
   (add-hook 'clojure-mode-hook (lambda () (lispy-mode 1)
     ;(lispy-set-key-theme '(special c-digits)) ))
     (lispy-set-key-theme '(special paredit c-digits)) ))
@@ -285,6 +292,17 @@ layers configuration. You are free to put any user code."
   (global-set-key (kbd "C-f") 'avy-goto-char-2)
   (evil-global-set-key 'normal (kbd "C-f") 'avy-goto-char-2)
 
+  ;; it is needed to disable all the cathegory just for a simple change. But it seems like here is NOT needed to rebind all again
+  (setq evil-cleverparens-use-additional-bindings nil)
+  (define-key evil-normal-state-map (kbd "M-[")   'evil-cp-wrap-next-square)
+  (define-key evil-normal-state-map (kbd "M-]")   'evil-cp-wrap-next-curly)
+  (define-key evil-normal-state-map (kbd "M-{")   nil)
+  (define-key evil-normal-state-map (kbd "M-}")   nil)
+  ;;(define-key evil-normal-state-map (kbd "C-o")   'paxedit-compress)
+  ;;(define-key evil-normal-state-map (kbd "C-O")   'paxedit-compress)
+  ;;(define-key evil-normal-state-map (kbd "C-m")   'paxedit-format-1)
+  ;;(define-key evil-normal-state-map (kbd "C-M")   'paxedit-format-1)
+
   ;; it is needed to disable all the cathegory just for a simple change, so we need to rebind all again
   (setq evil-cleverparens-use-additional-movement-keys nil)
   (define-key evil-normal-state-map (kbd "L")   'evil-cp-forward-sexp)
@@ -298,6 +316,11 @@ layers configuration. You are free to put any user code."
   (define-key evil-normal-state-map (kbd "(")   'evil-cp-backward-up-sexp)
   (define-key evil-normal-state-map (kbd ")")   'evil-cp-up-sexp)
 
+  ;;; No logré hacer que en el visual normal se haga wrap, toca es en modo insert seleccionar con Shift-arrows
+  ;(define-key evil-visual-state-map (kbd "\"")   'lispy-doublequote)
+  ;(define-key evil-visual-state-map (kbd "[")   'lispy-braces)
+  ;(define-key evil-visual-state-map (kbd "]")   'lispy-braces)
+
   (eval-after-load "lispy"
   `(progn
      ;; replace a global binding with own function
@@ -307,15 +330,22 @@ layers configuration. You are free to put any user code."
      (define-key lispy-mode-map (kbd "[") 'lispy-brackets)  
      (define-key lispy-mode-map (kbd "}") 'lispy-forward)   
      (define-key lispy-mode-map (kbd "{") 'lispy-backward)  
+     ;(define-key lispy-mode-map (kbd "}") 'paxedit-backward-end)
+     ;(define-key lispy-mode-map (kbd "{") 'paxedit-backward-up)
 
      ;consistencia con paredit y cleverparens
      (define-key lispy-mode-map (kbd "<") 'evil-cp-<)      
      (define-key lispy-mode-map (kbd ">") 'evil-cp->)      
 
-     (define-key lispy-mode-map (kbd "f") 'special-lispy-ace-paren)  ;antes q, consistencia con vimium
-     (define-key lispy-mode-map (kbd "F") 'special-lispy-ace-symbol) ;antes a, consistencia con f
-     (define-key lispy-mode-map (kbd "n") 'special-lispy-flow)		 ;antes f, evitar colision, v parece flecha abajo, contigua a b como con i3
-     (define-key lispy-mode-map (kbd "y") 'special-lispy-new-copy)   ;antes n, consistencia con vim
+     (lispy-define-key lispy-mode-map (kbd "f") 'lispy-ace-paren)  ;antes q, consistencia con vimium
+     (lispy-define-key lispy-mode-map (kbd "F") 'lispy-ace-symbol) ;antes a, consistencia con f
+     (lispy-define-key lispy-mode-map (kbd "n") 'lispy-flow)		 ;antes f, evitar colision, v parece flecha abajo, contigua a b como con i3
+     (lispy-define-key lispy-mode-map (kbd "y") 'lispy-new-copy)   ;antes n, consistencia con vim
+
+    ;(define-key lispy-mode-map (kbd "M-r") 'lispy-raise-sexp)
+    ;(define-key lispy-mode-map (kbd "M-r") 'paxedit-sexp-raise)
+    ;(lispy-define-key lispy-mode-map (kbd "M-r") 'paxedit-sexp-raise)
+
 
     ;;; Modificación asumiendo (lispy-set-key-theme '(special paredit c-digits)))), modificado con lo mejor lispy-map
     ;(define-key lispy-mode-map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -323,16 +353,50 @@ layers configuration. You are free to put any user code."
     ;(define-key lispy-mode-map (kbd "[") 'lispy-backward)
     (define-key lispy-mode-map (kbd ")") 'lispy-right-nostring)
     (define-key lispy-mode-map (kbd "M-s") 'lispy-splice)
-    (define-key lispy-mode-map (kbd "M-<up>") 'lispy-splice-sexp-killing-backward)
-    (define-key lispy-mode-map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
-    (define-key lispy-mode-map (kbd "M-r") 'lispy-raise-sexp)
+    ;(define-key lispy-mode-map (kbd "M-<up>") 'lispy-splice-sexp-killing-backward)
+    ;(define-key lispy-mode-map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
+
     (define-key lispy-mode-map (kbd "M-?") 'lispy-convolute-sexp)
     (define-key lispy-mode-map (kbd "M-S") 'lispy-split)
     (define-key lispy-mode-map (kbd "M-J") 'lispy-join)
     (define-key lispy-mode-map (kbd "<C-return>") 'lispy-open-line)
     (define-key lispy-mode-map (kbd "<M-return>") 'lispy-meta-return)
 	;(define-key lispy-mode-map (kbd "M-o") 'lispy-string-oneline)
+
+;; Por alguna razón me toca especificar lo de paxedit en ambas partes
+		(define-key lispy-mode-map (kbd "M-<down>") 'paxedit-transpose-forward)
+        (define-key lispy-mode-map (kbd "M-<up>") 'paxedit-transpose-backward)
+		(define-key lispy-mode-map (kbd "M-<left>") 'paxedit-backward-up)
+        (define-key lispy-mode-map (kbd "M-<right>") 'paxedit-backward-end)
+        (define-key lispy-mode-map (kbd "M-b") 'paxedit-previous-symbol)
+        (define-key lispy-mode-map (kbd "M-w") 'paxedit-next-symbol)
+        (define-key lispy-mode-map (kbd "M-Y") 'paxedit-copy)
+        (define-key lispy-mode-map (kbd "M-r") 'paxedit-sexp-raise)
+        (define-key lispy-mode-map (kbd "M-u") 'paxedit-symbol-change-case)
+        (define-key lispy-mode-map (kbd "M-y") 'paxedit-symbol-copy)
+        (define-key lispy-mode-map (kbd "M-d") 'paxedit-kill)
+        (define-key lispy-mode-map (kbd "M-c") 'paxedit-wrap-comment)
+
 	))
+
+		(global-set-key (kbd "M-<down>") 'paxedit-transpose-forward)
+        (global-set-key (kbd "M-<up>") 'paxedit-transpose-backward)
+		(global-set-key (kbd "M-<left>") 'paxedit-backward-up)
+        (global-set-key (kbd "M-<right>") 'paxedit-backward-end)
+        (global-set-key (kbd "M-b") 'paxedit-previous-symbol)
+        (global-set-key (kbd "M-w") 'paxedit-next-symbol)
+        (global-set-key (kbd "M-Y") 'paxedit-copy)
+        (global-set-key (kbd "M-r") 'paxedit-sexp-raise)
+        (global-set-key (kbd "M-u") 'paxedit-symbol-change-case)
+        (global-set-key (kbd "M-y") 'paxedit-symbol-copy)
+        (global-set-key (kbd "M-d") 'paxedit-kill)
+        (global-set-key (kbd "M-c") 'paxedit-wrap-comment)
+
+    ;(global-unset-key (kbd "M-r"))
+    ;(global-set-key (kbd "M-r") 'paxedit-sexp-raise)
+	;No logré hacer funcionar paxedit-sexp-raise con lispy, la única forma fue cambiando el archivo:
+	;.emacs.d/elpa/lispy-20151226.1024/lispy.el
+	;(define-key map (kbd "M-r") 'paxedit-sexp-raise)
 
   (global-set-key (kbd "M-o") 'lispy-string-oneline)
   (global-set-key (kbd "M-(") 'evil-cp-wrap-next-round)
@@ -342,8 +406,8 @@ layers configuration. You are free to put any user code."
   ;(define-key lispy-mode-map (kbd "M-k") 'special-lispy-move-up)    ;antes w, como k pero arrastrando
   ;(define-key lispy-mode-map (kbd "M-j") 'special-lispy-move-down)  ;antes s, como j pero arrastrando
 
-  (global-set-key (kbd "M-k") 'special-lispy-move-up)
-  (global-set-key (kbd "M-j") 'special-lispy-move-down)
+  (global-set-key (kbd "M-k") 'lispy-move-up)
+  (global-set-key (kbd "M-j") 'lispy-move-down)
   ;(global-set-key (kbd "M-w") (lambda () (evil-cp-evil-copy-paste-form 1)))
   ;(global-set-key (kbd "M-w") 'lispy-clone)
   (global-set-key (kbd "M-p") 'lispy-clone)
@@ -364,6 +428,12 @@ layers configuration. You are free to put any user code."
   (require 'isend-mode)
   (add-hook 'isend-mode-hook 'isend-default-ipython-setup)
   (add-hook 'python-mode-hook #'isend-mode)
+
+  (require 'adjust-parens)
+  (add-hook 'clojure-mode-hook #'adjust-parens-mode)
+  (local-set-key (kbd "TAB") 'lisp-indent-adjust-parens)
+
+
 
 )
 

@@ -25,7 +25,6 @@
      clojure
      python
      ranger
-     gtags
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -327,8 +326,11 @@ values."
 
   (eval-after-load "lispy"
   `(progn
+  ;(use-package lispy
+  ;  :ensure t
+  ;  :init
+  ;  (progn
      ;; replace a global binding with own function
-
      ;agilidad en teclado latino
      (define-key lispy-mode-map (kbd "]") 'lispy-braces)
      (define-key lispy-mode-map (kbd "[") 'lispy-brackets)
@@ -341,13 +343,19 @@ values."
      (define-key lispy-mode-map (kbd "<") 'evil-cp-<)
      (define-key lispy-mode-map (kbd ">") 'evil-cp->)
 
-     (lispy-define-key lispy-mode-map (kbd "f") 'lispy-ace-paren)  ;antes q, consistencia con vimium
-     (lispy-define-key lispy-mode-map (kbd "F") 'lispy-ace-symbol) ;antes a, consistencia con f
-     (lispy-define-key lispy-mode-map (kbd "n") 'lispy-flow)		 ;antes f, evitar colision, v parece flecha abajo, contigua a b como con i3
-     (lispy-define-key lispy-mode-map (kbd "y") 'lispy-new-copy)   ;antes n, consistencia con vim
 
-     (define-key lispy-mode-map (kbd "M-RET") nil) ;alt+enter es importante para cider y cljr-refactor
-     (lispy-define-key lispy-mode-map (kbd "M-RET") nil)
+     (lispy-define-key lispy-mode-map (kbd "y") 'lispy-new-copy)   ;antes n, consistencia con vim
+     (lispy-define-key lispy-mode-map (kbd "f") 'lispy-ace-paren)  ;antes q, consistencia con vimium
+     (lispy-define-key lispy-mode-map (kbd "F") 'lispy-ace-symbol)  ;antes a, consistencia con vimium
+     ;; Ahora que veo que C-q será usado en helm buffer, mejor estandarizar con Lispy
+     ;; Aprovechar el yank de significado inverso que ya quedó libre, tiene sentido porque n/N es usado para encontrar siguiente y anterior
+     (lispy-define-key lispy-mode-map (kbd "n") 'lispy-flow)		 ;antes f
+     (lispy-define-key lispy-mode-map (kbd "N") 'lispy-flow)		 ;antes f, duplicado porque S-n es más natural como en búsqueda con vim
+
+     ;; Esto no está funcionando
+     ;(define-key lispy-mode-map (kbd "<M-return>") nil) ;alt+enter es importante para cider y cljr-refactor
+     ;(define-key lispy-mode-map (kbd "M-RET") nil) ;alt+enter es importante para cider y cljr-refactor
+     ;(lispy-define-key lispy-mode-map (kbd "M-RET") nil)
 
     ;(define-key lispy-mode-map (kbd "M-r") 'lispy-raise-sexp)
     ;(define-key lispy-mode-map (kbd "M-r") 'paxedit-sexp-raise)
@@ -454,6 +462,21 @@ values."
   ;(evil-leader/set-key "/" 'spacemacs/helm-project-smart-do-search)
   ;(evil-leader/set-key "*" 'spacemacs/helm-project-smart-do-search-region-or-symbol)
 
+  ;(evil-leader/set-key "yy" 'spacemacs/helm-project-smart-do-search-region-or-symbol)
+
+  ;; Aprendí en .emacs.d/layers/+distribution/spacemacs...
+  ;; https://github.com/syl20bnr/spacemacs/blob/master/doc/VIMUSERS.org
+  (spacemacs/set-leader-keys
+    "SPC" 'avy-goto-char-2
+    "q" 'avy-goto-line)
+
+  ;; No se por qué no me funciona con dos letras, pero igual no es prioritario
+    ;(spacemacs/set-leader-keys
+    ;  "ys" 'spacemacs/save-buffers-kill-emacs
+    ;  "yq" 'spacemacs/prompt-kill-emacs
+    ;  "yQ" 'spacemacs/kill-emacs
+    ;  "yd" 'spacemacs/frame-killer)
+
   ;; Multiple cursors no reconoce comandos de evil-celverparens
   ;(require 'evil-mc)
   ;(global-evil-mc-mode 1)
@@ -467,6 +490,7 @@ values."
     (cljr-add-keybindings-with-prefix "M-<return>")
     )
   (add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
+  (global-set-key (kbd "M-<return>") nil)
 
   ;; Antes pensaba en que sería deseable que la repl estuviera en modo insert, pero es realmente un complique
   ;; mejor simplemente no usar la REPL y evaual todo desde el archivo con C-c C-c o C-c C-e

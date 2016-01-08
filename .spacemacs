@@ -180,7 +180,7 @@ values."
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90
    ;; If non nil unicode symbols are displayed in the mode line. (default t)
-   dotspacemacs-mode-line-unicode-symbols t
+   dotspacemacs-mode-line-unicode-symbols nil
    ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters the
    ;; point when it reaches the top or bottom of the screen. (default t)
@@ -300,6 +300,9 @@ values."
   (define-key evil-normal-state-map (kbd "M-]")   'evil-cp-wrap-next-curly)
   (define-key evil-normal-state-map (kbd "M-{")   nil)
   (define-key evil-normal-state-map (kbd "M-}")   nil)
+  (define-key evil-insert-state-map (kbd "\C-w")   nil)
+  (define-key evil-insert-state-map (kbd "\C-w \C-w")   'ace-window)
+  ;(define-key clojure-mode-map (kbd "C-w") 'ace-window)
   ;;(define-key evil-normal-state-map (kbd "C-o")   'paxedit-compress)
   ;;(define-key evil-normal-state-map (kbd "C-O")   'paxedit-compress)
   ;;(define-key evil-normal-state-map (kbd "C-m")   'paxedit-format-1)
@@ -318,7 +321,6 @@ values."
   (define-key evil-normal-state-map (kbd "(")   'evil-cp-backward-up-sexp)
   ;(define-key evil-normal-state-map (kbd ")")   'evil-cp-up-sexp)
   (define-key evil-normal-state-map (kbd ")")   'lispy-right-nostring)
-
   ;;; No logré hacer que en el visual normal se haga wrap, toca es en modo insert seleccionar con Shift-arrows
   ;(define-key evil-visual-state-map (kbd "\"")   'lispy-doublequote)
   ;(define-key evil-visual-state-map (kbd "[")   'lispy-braces)
@@ -517,6 +519,9 @@ values."
     ;(define-key clojure-mode-map (kbd "C-w") 'ace-window)
     ;(define-key global-map (kbd "C-w") 'ace-window)
     ;(global-set-key (kbd "M-p") 'ace-window)
+
+    (with-eval-after-load 'smartparens
+      (show-smartparens-global-mode -1))
 )
 
 

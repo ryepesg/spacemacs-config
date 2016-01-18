@@ -1,8 +1,21 @@
 ;; -*- mode: emacs-lisp -*-
+;; This file is loaded by Spacemacs at startup.
+;; It must be stored in your home directory.
+
 (defun dotspacemacs/layers ()
+  "Configuration Layers declaration.
+You should not put any user code in this function besides modifying the variable
+values."
   (setq-default
+   ;; Base distribution to use. This is a layer contained in the directory
+   ;; `+distribution'. For now available distributions are `spacemacs-base'
+   ;; or `spacemacs'. (default 'spacemacs)
    dotspacemacs-distribution 'spacemacs
+   ;; List of additional paths where to look for configuration layers.
+   ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path '()
+   ;; List of configuration layers to load. If it is the symbol `all' instead
+   ;; of a list then all discovered layers will be installed.
    dotspacemacs-configuration-layers
    '(
      ;; ----------------------------------------------------------------
@@ -10,11 +23,12 @@
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
+     spacemacs-ivy
      auto-completion
      ;; better-defaults
      emacs-lisp
-     ;; git
-     ;; markdown
+     git
+     markdown
      org
      ;; (shell :variables
      ;;        shell-default-height 30
@@ -22,37 +36,36 @@
      ;; spell-checking
      syntax-checking
      ;; version-control
+     smex
      clojure
      python
      ranger
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
-   ;; packages then consider to create a layer, you can also put the
-   ;; configuration in `dotspacemacs/config'.
+   ;; packages, then consider creating a layer. You can also put the
+   ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(
                                       lispy
                                       evil-surround
                                       evil-cleverparens
-                                      ;aggressive-indent
-                                      ;expand-region
                                       isend-mode
                                       adjust-parens
                                       paxedit
                                       pdf-tools
-                                      ;flx-ido
-                                      ;helm-fuzzier
-                                      ;evil-mc
                                       paredit ;este solo para no tener que configurar tanta cosa en la cider-repl
                                       simpleclip
-                                      )
+                                      whitespace-cleanup-mode
+                                      ;aggressive-indent -> parece integrado ya en las otras layers
+                                      ;expand-region -> parece integrado ya en las otras layers
+                                      ;evil-mc -> no funciona bien por ahora
+   )
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
    ;; are declared in a layer which is not a member of
    ;; the list `dotspacemacs-configuration-layers'. (default t)
-   dotspacemacs-delete-orphan-packages t)
-  )
+   dotspacemacs-delete-orphan-packages t))
 
 (defun dotspacemacs/init ()
   "Initialization function.
@@ -60,6 +73,7 @@ This function is called at the very startup of Spacemacs initialization
 before layers configuration.
 You should not put any user code in there besides modifying the variable
 values."
+
 
   ;; Nuevo para evitar CIDER inestable
   (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
@@ -70,6 +84,18 @@ values."
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
+   ;; If non nil ELPA repositories are contacted via HTTPS whenever it's
+   ;; possible. Set it to nil if you have no way to use HTTPS in your
+   ;; environment, otherwise it is strongly recommended to let it set to t.
+   ;; This variable has no effect if Emacs is launched with the parameter
+   ;; `--insecure' which forces the value of this variable to nil.
+   ;; (default t)
+   dotspacemacs-elpa-https t
+   ;; Maximum allowed time in seconds to contact an ELPA repository.
+   dotspacemacs-elpa-timeout 5
+   ;; If non nil then spacemacs will check for updates at startup
+   ;; when the current branch is not `develop'. (default t)
+   dotspacemacs-check-for-update t
    ;; One of `vim', `emacs' or `hybrid'. Evil is always enabled but if the
    ;; variable is `emacs' then the `holy-mode' is enabled at startup. `hybrid'
    ;; uses emacs key bindings for vim's insert mode, but otherwise leaves evil
@@ -88,26 +114,26 @@ values."
    ;; Possible values are: `recents' `bookmarks' `projects'.
    ;; (default '(recents projects))
    dotspacemacs-startup-lists '(recents projects)
+   ;; Number of recent files to show in the startup buffer. Ignored if
+   ;; `dotspacemacs-startup-lists' doesn't include `recents'. (default 5)
+   dotspacemacs-startup-recent-list-size 5
+   ;; Default major mode of the scratch buffer (default `text-mode')
+   dotspacemacs-scratch-mode 'text-mode
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(;material
+   dotspacemacs-themes '(
                          sanityinc-tomorrow-night
+                         material
                          zenburn
                          monokai
-                         ;; ample-flat
-                         ;; ample
-                         ;; spacemacs-dark
-                         ;; solarized-dark
-                         ;; leuven
                          )
-   ;; If non nil the cursor color matches the state color.
+   ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
    ;; size to make separators look not too crappy.
-   ;;"Source Code Pro"
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+                               :size 15
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -122,23 +148,41 @@ values."
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
    ;; (default "C-M-m)
    dotspacemacs-major-mode-emacs-leader-key "C-M-m"
-   ;; The command key used for Evil commands (ex-commands) and
-   ;; Emacs commands (M-x).
-   ;; By default the command key is `:' so ex-commands are executed like in Vim
-   ;; with `:' and Emacs commands are executed with `<leader> :'.
-   dotspacemacs-command-key ":"
-   ;; If non nil `Y' is remapped to `y$'. (default t)
-   dotspacemacs-remap-Y-to-y$ t
+   ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
+   ;; (default "SPC")
+   dotspacemacs-emacs-command-key "SPC"
+   ;; These variables control whether separate commands are bound in the GUI to
+   ;; the key pairs C-i, TAB and C-m, RET.
+   ;; Setting it to a non-nil value, allows for separate commands under <C-i>
+   ;; and TAB or <C-m> and RET.
+   ;; In the terminal, these pairs are generally indistinguishable, so this only
+   ;; works in the GUI. (default nil)
+   dotspacemacs-distinguish-gui-tab nil
+   ;; If non nil `Y' is remapped to `y$' in Evil states. (default nil)
+   dotspacemacs-remap-Y-to-y$ nil
+   ;; If non nil, inverse the meaning of `g' in `:substitute' Evil ex-command.
+   ;; (default nil)
+   dotspacemacs-ex-substitute-global nil
+   ;; Name of the default layout (default "Default")
+   dotspacemacs-default-layout-name "Default"
+   ;; If non nil the default layout name is displayed in the mode-line.
+   ;; (default nil)
+   dotspacemacs-display-default-layout nil
+   ;; If non nil then the last auto saved layouts are resume automatically upon
+   ;; start. (default nil)
+   dotspacemacs-auto-resume-layouts nil
    ;; Location where to auto-save files. Possible values are `original' to
    ;; auto-save the file in-place, `cache' to auto-save the file to another
    ;; file stored in the cache directory and `nil' to disable auto-saving.
    ;; (default 'cache)
    dotspacemacs-auto-save-file-location 'cache
+   ;; Maximum number of rollback slots to keep in the cache. (default 5)
+   dotspacemacs-max-rollback-slots 5
    ;; If non nil then `ido' replaces `helm' for some commands. For now only
    ;; `find-files' (SPC f f), `find-spacemacs-file' (SPC f e s), and
    ;; `find-contrib-file' (SPC f e c) are replaced. (default nil)
    dotspacemacs-use-ido nil
-   ;; If non nil, `helm' will try to miminimize the space it uses. (default nil)
+   ;; If non nil, `helm' will try to minimize the space it uses. (default nil)
    dotspacemacs-helm-resize nil
    ;; if non nil, the helm header is hidden when there is only one source.
    ;; (default nil)
@@ -185,6 +229,10 @@ values."
    ;; scrolling overrides the default behavior of Emacs which recenters the
    ;; point when it reaches the top or bottom of the screen. (default t)
    dotspacemacs-smooth-scrolling t
+   ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
+   ;; derivatives. If set to `relative', also turns on relative line numbers.
+   ;; (default nil)
+   dotspacemacs-line-numbers nil
    ;; If non-nil smartparens-strict-mode will be enabled in programming modes.
    ;; (default nil)
    dotspacemacs-smartparens-strict-mode nil
@@ -202,50 +250,22 @@ values."
    ;; The default package repository used if no explicit repository has been
    ;; specified with an installed package.
    ;; Not used for now. (default nil)
-   dotspacemacs-default-package-repository nil)
-  )
-
+   dotspacemacs-default-package-repository nil
+   ;; Delete whitespace while saving buffer. Possible values are `all'
+   ;; to aggressively delete empty line and long sequences of whitespace,
+   ;; `trailing' to delete only the whitespace at end of lines, `changed'to
+   ;; delete only whitespace for changed lines or `nil' to disable cleanup.
+   ;; (default nil)
+   dotspacemacs-whitespace-cleanup nil
+   ))
 
 (defun dotspacemacs/user-init ()
-  (spacemacs|use-package-add-hook evil
-    :post-config
-    (progn
-      ;; restore universal argument
-      (define-key global-map (kbd "C-u") 'universal-argument)
-      (define-key evil-normal-state-map (kbd "C-u") 'universal-argument)
-      (define-key evil-motion-state-map (kbd "C-u") 'universal-argument)
-      (define-key evil-insert-state-map (kbd "C-u") 'universal-argument)
-      (define-key evil-evilified-state-map (kbd "C-u") 'universal-argument)
-      (define-key evil-emacs-state-map (kbd "C-u") 'universal-argument)
-
-      ;; buffer switching
-      ;(define-key evil-normal-state-map "J" 'spacemacs/next-useful-buffer)
-      ;(define-key evil-normal-state-map "K" 'spacemacs/previous-useful-buffer)
-      (define-key evil-normal-state-map (kbd "<C-next>") 'spacemacs/next-useful-buffer)
-      (define-key evil-normal-state-map (kbd "<C-prior>") 'spacemacs/previous-useful-buffer)
-
-      ;; iedit-mode
-      (define-key global-map (kbd "C-;") 'iedit-mode)
-      (define-key evil-normal-state-map (kbd "C-;") 'iedit-mode)
-      (define-key evil-insert-state-map (kbd "C-;") 'iedit-mode)
-
-      ;; user reserved key-bindings
-      (evil-leader/set-key "od" 'dired-jump)
-      (evil-leader/set-key "or" 'popwin-pop-repl)
-      (evil-leader/set-key "ov" 'set-variable)))
-
-  (spacemacs|use-package-add-hook evil-escape
-    :post-config
-    (progn
-      ;; supress evil escape when lispy mode active
-      (push (lambda () (bound-and-true-p lispy-mode))
-            evil-escape-inhibit-functions)))
-
-  (spacemacs|use-package-add-hook evil-snipe
-    :post-init
-    (progn
-      (setq evil-snipe-enable-alternate-f-and-t-behaviors t)))
+  "Initialization function for user code.
+It is called immediately after `dotspacemacs/init'.  You are free to put almost
+any user code here.  The exception is org related code, which should be placed
+in `dotspacemacs/user-config'."
   )
+
 
 
 (defun dotspacemacs/user-config ()
@@ -268,6 +288,16 @@ values."
   ;;; esc quits
   ;(define-key evil-normal-state-map [escape] 'keyboard-quit)
   ;(define-key evil-visual-state-map [escape] 'keyboard-quit)
+  ;; esc quits
+  (defun minibuffer-keyboard-quit ()
+    "Abort recursive edit.
+  In Delete Selection mode, if the mark is active, just deactivate it;
+  then it takes a second \\[keyboard-quit] to abort the minibuffer."
+    (interactive)
+    (if (and delete-selection-mode transient-mark-mode mark-active)
+        (setq deactivate-mark  t)
+      (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
+      (abort-recursive-edit)))
   (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
   (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
   (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
@@ -345,8 +375,8 @@ values."
      ;(define-key lispy-mode-map (kbd "{") 'paxedit-backward-up)
 
      ;consistencia con paredit y cleverparens
-     (define-key lispy-mode-map (kbd "<") 'evil-cp-<)
-     (define-key lispy-mode-map (kbd ">") 'evil-cp->)
+     (define-key lispy-mode-map (kbd "C-<") 'evil-cp-<)
+     (define-key lispy-mode-map (kbd "C->") 'evil-cp->)
 
 
      (lispy-define-key lispy-mode-map (kbd "y") 'lispy-new-copy)   ;antes n, consistencia con vim
@@ -454,14 +484,12 @@ values."
   (add-hook 'isend-mode-hook 'isend-default-ipython-setup)
   (add-hook 'python-mode-hook #'isend-mode)
 
-  (require 'adjust-parens)
-  (add-hook 'clojure-mode-hook #'adjust-parens-mode)
-  (local-set-key (kbd "TAB") 'lisp-indent-adjust-parens)
-
   ;; Para hacer wrap in org mode
   (add-hook 'text-mode-hook 'auto-fill-mode)
-  ;; Es mejor deer que dired
-  (add-hook 'dired-mode-hook 'deer)
+
+  ;; Puede haber interferencia entre ranger y dired, por ello ser recomienda el siguiente hook: https://github.com/syl20bnr/spacemacs/issues/3505
+  ;; espero no tener el inconveniente evitando usar dired, y en vez de ello solo ranger
+  ;; (add-hook 'dired-mode-hook 'deer)
 
   ;; Busqueda fácil por defecto no viene incluida - ya no es necesario desde spacemacs 105
   ;(evil-leader/set-key "/" 'spacemacs/helm-project-smart-do-search)
@@ -534,7 +562,35 @@ values."
 
     (with-eval-after-load 'smartparens
       (show-smartparens-global-mode -1))
+
+    (add-hook 'clojure-mode-hook 'whitespace-cleanup-mode)
+
+    ;; me ocurrió el undo-tree-canary problem, así que deshabilito undo-tree hasta
+    ;; que evil solucione el issue, es crítico porque se pierde el historial en el momento
+    ;; que uno graba, es decir mientras uno no grabe, todo bien con undo-tree
+    ;; https://bitbucket.org/lyro/evil/issues/522/when-saving-the-buffer-change-list-got
+    ;; (global-undo-tree-mode -1)
+    ;; El problema ahora es que redo no funciona. Por ahora trataré de mitigar con magit mejor.
+
+    (require 'adjust-parens)
+    (add-hook 'clojure-mode-hook #'adjust-parens-mode)
+    (define-key clojure-mode-map (kbd "TAB") 'lisp-indent-adjust-paren)
+                                        ;(local-set-key (kbd "TAB") 'lisp-indent-adjust-parens)
+                                        ;(define-key evil-insert-state-map (kbd "TAB") 'lisp-indent-adjust-parens)
+
+    ;; Ivy con smex, ver http://oremacs.com/2015/04/16/ivy-mode/
+  (setq smex-completion-method 'ivy)
+  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+
+  ;; Mostrar buffers que no han sido guardados, como lo hace helm
+  (custom-set-faces
+     '(ivy-modified-buffer ((t (:foreground "#ffa500")))))
+
+
 )
+
+
 
 
 ;; Do not write anything past this comment. This is where Emacs will

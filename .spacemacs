@@ -31,6 +31,7 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -102,7 +103,9 @@ values."
 
 
   ;; Nuevo para evitar CIDER inestable
-  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+  ;(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+  (add-to-list 'package-archives
+               '("melpa-stable" . "https://stable.melpa.org/packages/") t)
   (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
   ;(add-to-list 'package-pinned-packages '(clj-refactor . "melpa") t)
 
@@ -431,6 +434,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;(define-key evil-visual-state-map (kbd "[")   'lispy-braces)
   ;(define-key evil-visual-state-map (kbd "]")   'lispy-braces)
 
+
   (eval-after-load "lispy"
   `(progn
   ;(use-package lispy
@@ -585,7 +589,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
   ;(require 'clj-refactor)
   (setq cider-repl-display-help-banner nil) 
-  (setq cljr-suppress-middleware-warnings t) ;no muestre WARNINGS de incompatibilidades, eso es imposible de solucinar entre CIDER y clj-refactor
+  ;(setq cljr-suppress-middleware-warnings t) ;no muestre WARNINGS de incompatibilidades, eso es imposible de solucinar entre CIDER y clj-refactor
   (defun my-clojure-mode-hook ()
     (clj-refactor-mode 1)
     (yas-minor-mode 1) ; for adding require/use/import statements
@@ -682,6 +686,30 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;; para continuar de modo continuo viendo pdf y no tener que hacer C-u
   (setq doc-view-continuous t)
 
+  ;; Recomendado en la guía de figwheel para M-x cider-jack-in-clojurescript
+  (require 'cider)
+  (defun cider-figwheel-repl ()
+    (interactive)
+    (save-some-buffers)
+    (with-current-buffer (cider-current-repl-buffer)
+      (goto-char (point-max))
+      (insert "(require 'figwheel-sidecar.repl-api)
+             (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
+             (figwheel-sidecar.repl-api/cljs-repl)")
+      (cider-repl-return)))
+  (define-key clojure-mode-map (kbd "C-c M-j") 'cider-figwheel-repl)
+
+  (defun cider-figwheel-send-to-repl ()
+   (interactive)
+   (let ((s (buffer-substring-no-properties
+             (nth 0 (cider-last-sexp 'bounds))
+             (nth 1 (cider-last-sexp 'bounds)))))
+    (with-current-buffer (cider-current-connection)
+     (insert s)
+     (cider-repl-return))))
+  (define-key clojure-mode-map (kbd "C-c E") 'cider-figwheel-send-to-repl)
+  ;(global-set-key (kbd "C-c M-e") 'cider-figwheel-send-to-repl)
+
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -693,10 +721,10 @@ before packages are loaded. If you are unsure, you should try in setting them in
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yesql-ghosts yapfify whitespace-cleanup-mode web-mode tagedit smeargle slim-mode simpleclip scss-mode sass-mode ranger pyvenv pytest pyenv-mode py-isort pip-requirements pdf-tools tablist paxedit orgit org-projectile org-present org org-pomodoro alert log4e gntp org-download mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode lispy zoutline less-css-mode jade-mode isend-mode hy-mode htmlize haml-mode gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor evil-cleverparens emmet-mode cython-mode company-web web-completion-data company-statistics company-anaconda company clojure-snippets clj-refactor inflections edn multiple-cursors paredit peg cider-eval-sexp-fu cider seq queue clojure-mode auto-yasnippet yasnippet anaconda-mode pythonic adjust-parens ac-ispell auto-complete ws-butler window-numbering which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump popup f s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash async aggressive-indent adaptive-wrap ace-window ace-link avy quelpa package-build spacemacs-theme))))
+    (sql-indent clj-refactor pug-mode hide-comnt yesql-ghosts yapfify whitespace-cleanup-mode web-mode tagedit smeargle slim-mode simpleclip scss-mode sass-mode ranger pyvenv pytest pyenv-mode py-isort pip-requirements pdf-tools tablist paxedit orgit org-projectile org-present org org-pomodoro alert log4e gntp org-download mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode lispy zoutline less-css-mode jade-mode isend-mode hy-mode htmlize haml-mode gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor evil-cleverparens emmet-mode cython-mode company-web web-completion-data company-statistics company-anaconda company clojure-snippets inflections edn multiple-cursors paredit peg cider-eval-sexp-fu cider seq queue clojure-mode auto-yasnippet yasnippet anaconda-mode pythonic adjust-parens ac-ispell auto-complete ws-butler window-numbering which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump popup f s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash async aggressive-indent adaptive-wrap ace-window ace-link avy quelpa package-build spacemacs-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(ivy-modified-buffer ((t (:foreground "#ffa500")))))

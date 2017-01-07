@@ -555,10 +555,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
 	(setq org-toggle-inline-images t)
 	(global-visual-line-mode t)
 
-  ;; IPython
-  (require 'isend-mode)
-  (add-hook 'isend-mode-hook 'isend-default-ipython-setup)
-  (add-hook 'python-mode-hook #'isend-mode)
+  ;para abrir shell vertical
+  (setq split-width-threshold 0)
+  (setq split-height-threshold nil)
 
   ;; Para hacer wrap in org mode
   (add-hook 'text-mode-hook 'auto-fill-mode)
@@ -709,6 +708,67 @@ before packages are loaded. If you are unsure, you should try in setting them in
      (cider-repl-return))))
   (define-key clojure-mode-map (kbd "C-c E") 'cider-figwheel-send-to-repl)
   ;(global-set-key (kbd "C-c M-e") 'cider-figwheel-send-to-repl)
+
+  ;; Bug of paste on open file with click (issues/5435)
+  (add-hook 'spacemacs-buffer-mode-hook (lambda ()
+                                          (set
+                                           (make-local-variable
+                                            'mouse-1-click-follows-link)
+                                           nil)))
+
+
+  ;; IPython
+  ;(require 'isend-mode)
+  ;(add-hook 'isend-mode-hook 'isend-default-ipython-setup)
+  ;(add-hook 'python-mode-hook #'isend-mode)
+
+  (require 'python)
+  (define-key inferior-python-mode-map (kbd "C-w C-w") 'evil-window-next)
+  (define-key python-mode-map (kbd "C-c C-z") 'python-start-or-switch-repl)
+
+  ;(add-hook 'python-mode-hook (lambda ()
+  ;                              ;(python-shell-switch-to-shell)
+  ;                              ;(python-start-or-switch-repl)
+  ;                              (live-py-mode)
+  ;                              ))
+  ;(define-key python-mode-map (kbd "C-w C-w") (lambda () (evil-window-next 2)))
+  ;(define-key python-mode-map (kbd "C-w C-w") (lambda () (next-window)))
+  ;(define-key python-mode-map (kbd "C-w C-w") 'next-window)
+
+  (defun my-python-line ()
+    (interactive)
+    (save-excursion
+      (setq the_script_buffer (format (buffer-name)))
+      (end-of-line)
+      (kill-region (point) (progn (back-to-indentation) (point)))
+      (if (get-buffer  "*Python*")
+          (message "")
+          ;(do
+            (message "No Python buffer")
+          ;(python-start-or-switch-repl))
+          )
+      ;; (setq the_py_buffer (format "*Python[%s]*" (buffer-file-name)))
+      (setq the_py_buffer "*Python*")
+      (switch-to-buffer-other-window  the_py_buffer)
+      (goto-char (buffer-end 1))
+      (yank)
+      (comint-send-input)
+      (switch-to-buffer-other-window the_script_buffer)
+      (yank))
+    (end-of-line)
+    (next-line)
+    )
+
+
+  (defun my-python-line2 ()
+(interactive) (python-shell-send-line) (next-line)
+    )
+
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (define-key python-mode-map (kbd "C-<return>") 'my-python-line)
+              (define-key python-mode-map "\C-cn" 'my-python-line2)))
+
 
 )
 

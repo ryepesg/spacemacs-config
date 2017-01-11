@@ -507,6 +507,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
     (define-key lispy-mode-map (kbd "M-<up>") 'paxedit-transpose-backward)
     (define-key lispy-mode-map (kbd "M-<left>") 'paxedit-backward-up)
     (define-key lispy-mode-map (kbd "M-<right>") 'paxedit-backward-end)
+    (define-key lispy-mode-map (kbd "x") 'evil-delete-char) ;por alguna razón no funciona
 	))
 
   ;; Paxedit
@@ -610,10 +611,11 @@ before packages are loaded. If you are unsure, you should try in setting them in
       ;(add-hook 'cider-repl-mode-hook #'paredit-mode)
       ;(define-key cider-repl-mode-map (kbd "C-l") 'cider-repl-clear-buffer)
       ;(define-key cider-repl-mode-map (kbd "C-w") 'cider-switch-to-last-clojure-buffer)
-      (evil-set-initial-state 'cider-repl-mode 'emacs)
-      (define-key evil-normal-state-map (kbd "C-c e") 'cider-eval-last-sexp-to-repl)
-      (define-key evil-insert-state-map (kbd "C-c e") 'cider-eval-last-sexp-to-repl)
       ;;(evil-leader/set-key-for-mode 'clojure-mode "e" 'cider-eval-last-sexp-to-repl)
+      (evil-set-initial-state 'cider-repl-mode 'emacs)
+      ;(define-key evil-normal-state-map (kbd "C-c e") 'cider-eval-last-sexp-to-repl)
+      ;(define-key evil-insert-state-map (kbd "C-c e") 'cider-eval-last-sexp-to-repl)
+      (define-key clojure-mode-map (kbd "C-c e") 'cider-eval-last-sexp-to-repl)
      ))
     (add-hook 'cider-repl-mode-hook #'paredit-mode)
     (define-key cider-repl-mode-map (kbd "C-h") 'cider-switch-to-last-clojure-buffer)
@@ -735,7 +737,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;(define-key python-mode-map (kbd "C-w C-w") (lambda () (next-window)))
   ;(define-key python-mode-map (kbd "C-w C-w") 'next-window)
 
-  (defun my-python-line ()
+  (defun send-python-line ()
     (interactive)
     (save-excursion
       (setq the_script_buffer (format (buffer-name)))
@@ -756,19 +758,22 @@ before packages are loaded. If you are unsure, you should try in setting them in
       (switch-to-buffer-other-window the_script_buffer)
       (yank))
     (end-of-line)
-    (next-line)
     )
 
-
-  (defun my-python-line2 ()
-(interactive) (python-shell-send-line) (next-line)
+  (defun send-python-line-next-line ()
+    (send-python-line)
+    (next-line)
     )
 
   (add-hook 'python-mode-hook
             (lambda ()
-              (define-key python-mode-map (kbd "C-<return>") 'my-python-line)
-              (define-key python-mode-map "\C-cn" 'my-python-line2)))
-
+              (define-key python-mode-map (kbd "C-<return>") 'send-python-line-next-line)
+              (define-key python-mode-map (kbd "C-c C-e") 'send-python-line)
+              (define-key python-mode-map (kbd "C-c e") 'send-python-line)
+              (define-key python-mode-map (kbd "C-c C-n") 'send-python-line)
+              (define-key python-mode-map (kbd "C-c n") 'send-python-line)
+              ;(define-key python-mode-map "\C-cn" 'send-python-line-next-line)
+              ))
 
 )
 

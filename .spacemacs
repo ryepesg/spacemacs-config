@@ -790,10 +790,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
               (define-key python-mode-map (kbd "C-e") 'send-python-line)
               ;(define-key python-mode-map (kbd "C-c e") 'send-python-line)
               (define-key python-mode-map (kbd "C-c C-e") 'send-python-line)
-              (define-key python-mode-map (kbd "C-c l") '
-                python-shell-send-buffer)
-              (define-key python-mode-map (kbd "C-c C-l") '
-                python-shell-send-buffer)
+              (define-key python-mode-map (kbd "C-c l") 'python-shell-send-buffer)
+              (define-key python-mode-map (kbd "C-c C-l") 'python-shell-send-buffer)
 
               ;; Mi primer script emacs :)
               (define-key python-mode-map
@@ -830,6 +828,13 @@ before packages are loaded. If you are unsure, you should try in setting them in
     ;(kbd "M-]") 'evil-cp-wrap-previous-square
     "x" 'evil-delete-char
     )
+
+(evil-define-key 'insert evil-cleverparens-mode-map
+  (kbd "M-[") 'evil-cp-wrap-next-square
+  (kbd "M-{") 'evil-cp-wrap-next-curly
+  (kbd "M-}") 'evil-cp-wrap-previous-curly
+  (kbd "M-]") 'evil-cp-wrap-previous-square
+  )
 
 (evil-define-key 'visual evil-cleverparens-mode-map
   "x" 'evil-delete-char

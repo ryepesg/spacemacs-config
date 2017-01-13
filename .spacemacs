@@ -443,12 +443,17 @@ before packages are loaded. If you are unsure, you should try in setting them in
                                         ;  (progn
        ;; replace a global binding with own function
                                         ;agilidad en teclado latino
-       (define-key lispy-mode-map (kbd "]") 'lispy-braces)
+       ;(define-key lispy-mode-map (kbd "]") 'lispy-braces)
        (define-key lispy-mode-map (kbd "[") 'lispy-brackets)
-       (define-key lispy-mode-map (kbd "}") 'lispy-forward)
-       (define-key lispy-mode-map (kbd "{") 'lispy-backward)
+       ;(define-key lispy-mode-map (kbd "}") 'lispy-forward)
+       (define-key lispy-mode-map (kbd "{") 'lispy-braces)
+       ;(define-key lispy-mode-map (kbd "{") 'lispy-backward)
                                         ;(define-key lispy-mode-map (kbd "}") 'paxedit-backward-end)
                                         ;(define-key lispy-mode-map (kbd "{") 'paxedit-backward-up)
+       ;(define-key lispy-mode-map (kbd "]") 'evil-cp-previous-opening)
+       (define-key lispy-mode-map (kbd "]") 'evil-cp-previous-closing)
+       (define-key lispy-mode-map (kbd "}") 'evil-cp-next-closing)
+
 
                                         ;consistencia con paredit y cleverparens
        (define-key lispy-mode-map (kbd "C-<") 'evil-cp-<)
@@ -490,15 +495,12 @@ before packages are loaded. If you are unsure, you should try in setting them in
                                         ;(define-key lispy-mode-map (kbd "M-o") 'lispy-string-oneline)
 
 
-       (define-key lispy-mode-map (kbd "{") 'evil-cp-previous-opening)
-       (define-key lispy-mode-map (kbd "}") 'evil-cp-next-closing)
-
 
        ;; Por alguna razón me toca especificar lo de paxedit en ambas partes
 
        ;; Conflicto si se carga lispy con Python
-       (define-key lispy-mode-map (kbd "C-m") 'paxedit-format-1)
-       (define-key lispy-mode-map (kbd "C-M") 'paxedit-format-1)
+       ;(define-key lispy-mode-map (kbd "C-m") 'paxedit-format-1)
+       ;(define-key lispy-mode-map (kbd "C-M") 'paxedit-format-1)
        (define-key lispy-mode-map (kbd "C-k") 'lispy-move-up)
        (define-key lispy-mode-map (kbd "C-j") 'lispy-move-down)
        (define-key lispy-mode-map (kbd "M-k") 'paxedit-transpose-backward)
@@ -506,12 +508,12 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
        ))
 
-(global-set-key (kbd "C-m") 'paxedit-format-1)
-(global-set-key (kbd "C-M") 'paxedit-format-1)
-(global-set-key (kbd "C-k") 'lispy-move-up)
-(global-set-key (kbd "C-j") 'lispy-move-down)
-(global-set-key (kbd "M-k") 'paxedit-transpose-backward)
-(global-set-key (kbd "M-j") 'paxedit-transpose-forward)
+;(global-set-key (kbd "C-m") 'paxedit-format-1)
+;(global-set-key (kbd "C-M") 'paxedit-format-1)
+;(global-set-key (kbd "C-k") 'lispy-move-up)
+;(global-set-key (kbd "C-j") 'lispy-move-down)
+;(global-set-key (kbd "M-k") 'paxedit-transpose-backward)
+;(global-set-key (kbd "M-j") 'paxedit-transpose-forward)
 
   ;; Go to definition, CIDER
 (global-set-key (kbd "S-RET") 'cider-find-dwim)
@@ -770,13 +772,17 @@ before packages are loaded. If you are unsure, you should try in setting them in
     "}" 'evil-cp-next-closing
     "[" 'evil-cp-next-opening
     "]" 'evil-cp-previous-closing
-    (kbd "M-[") 'evil-cp-wrap-next-square
-    (kbd "M-]") 'evil-cp-wrap-next-curly
-    (kbd "M-{") 'evil-cp-wrap-previous-curly
-    (kbd "M-}") 'evil-cp-wrap-previous-square
+    ;(kbd "M-[") 'evil-cp-wrap-next-square
+    ;(kbd "M-{") 'evil-cp-wrap-next-curly
+    ;(kbd "M-}") 'evil-cp-wrap-previous-curly
+    ;(kbd "M-]") 'evil-cp-wrap-previous-square
     "x" 'evil-delete-char
     )
 
+(evil-define-key 'visual evil-cleverparens-mode-map
+  "x" 'evil-delete-char
+  "d" 'evil-delete
+  )
 
 ;; Lo que es común a Python y Clojure en Paxedit normal mode
 (evil-define-key 'normal evil-cleverparens-mode-map

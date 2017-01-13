@@ -191,7 +191,7 @@ values."
    dotspacemacs-major-mode-emacs-leader-key "C-M-m"
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
    ;; (default "SPC")
-   dotspacemacs-emacs-command-key "SPC"
+   dotspacemacs-emacs-command-key "X"
    ;; These variables control whether separate commands are bound in the GUI to
    ;; the key pairs C-i, TAB and C-m, RET.
    ;; Setting it to a non-nil value, allows for separate commands under <C-i>
@@ -334,6 +334,16 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
 (defun dotspacemacs/user-config ()
 
+(custom-theme-set-faces
+ 'sanityinc-tomorrow-night
+ ;'(font-lock-comment-face ((t (:foreground "#DFAF8F"))))
+ ;'(font-lock-comment-delimiter-face ((t (:foreground "#DFAF8F"))))
+ ;'(avy-lead-face ((t (:background "white"))))
+ ;'(avy-lead-face-0 ((t (:background "white"))))
+ ;'(avy-background-face ((t (:background "gray40"))))
+ '(avy-goto-char-timer-face ((t (:background "#084B8A"))))
+ )
+
   ;; para que poder usar historial en evil buffers
 (setq-default evil-search-module 'evil-search)
 
@@ -407,9 +417,6 @@ before packages are loaded. If you are unsure, you should try in setting them in
 (require 'evil-cleverparens-text-objects)
 (require 'evil-surround)
 (global-evil-surround-mode 1)
-(define-key evil-normal-state-map (kbd "C-f") 'avy-goto-char-2)
-(global-set-key (kbd "C-f") 'avy-goto-char-2)
-(evil-global-set-key 'normal (kbd "C-f") 'avy-goto-char-2)
 
   ;; it is needed to disable all the cathegory just for a simple change. But it seems like here is NOT needed to rebind all again
   ;(setq evil-cleverparens-use-additional-bindings nil)
@@ -545,10 +552,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
   ;; Aprendí en .emacs.d/layers/+distribution/spacemacs...
   ;; https://github.com/syl20bnr/spacemacs/blob/master/doc/VIMUSERS.org
-(spacemacs/set-leader-keys
-    "SPC" 'avy-goto-char-2
+
+(spacemacs/set-leader-keys "SPC" 'avy-goto-char-2)
                                         ;"q" 'avy-goto-line  ;; requiere hacks en spacemacs para que pueda funcionar, sabiendo que en realidad saltar a la línea no es algo que use con frecuencia, además que ya no uso helm-buffer, luego no necesito congruencia con q
-    )
 
   ;; No se por qué no me funciona con dos letras, pero igual no es prioritario
                                         ;(spacemacs/set-leader-keys
@@ -875,6 +881,20 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (kbd "C-k") 'drag-stuff-up
   (kbd "C-j") 'drag-stuff-down
   )
+
+
+;(global-set-key (kbd "C-f") 'avy-goto-char-2)
+;(evil-global-set-key 'normal (kbd "C-f") 'avy-goto-char-2)
+;(define-key evil-normal-state-map (kbd "C-f") 'avy-goto-char-2)
+;(define-key drag-stuff-mode-map (kbd "C-f") 'avy-goto-char-2)
+;(spacemacs/set-leader-keys "SPC-SPC" 'avy-goto-char-2)
+;(spacemacs/set-leader-keys-for-major-mode 'evil-motion-state-local-map "SPC-SPC" 'avy-goto-char-2)
+;(spacemacs/set-leader-keys "SPC-SPC" 'avy-goto-char-2)
+;(spacemacs/set-leader-keys-for-major-mode 'evil-normal-state-local-map "SPC-SPC" 'avy-goto-char-2)
+;(spacemacs/set-leader-keys "SPC" 'avy-goto-char-2)
+(define-key evil-normal-state-map (kbd "C-f") 'avy-goto-char-2)
+;;https://www.reddit.com/r/spacemacs/comments/44ot4e/how_to_rebind_the_spc_spc_keybinding_to_another/
+(spacemacs/set-leader-keys "SPC" 'avy-goto-char-timer)
 
 )
 

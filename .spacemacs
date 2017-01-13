@@ -60,6 +60,7 @@ values."
      ranger
      evil-cleverparens
      python
+     (evil-snipe :variables evil-snipe-enable-alternate-f-and-t-behaviors t)
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -333,6 +334,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
   )
 
 (defun dotspacemacs/user-config ()
+
 
 (custom-theme-set-faces
  'sanityinc-tomorrow-night
@@ -711,6 +713,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
                                         ;(define-key python-mode-map (kbd "C-w C-w") (lambda () (evil-window-next 2)))
                                         ;(define-key python-mode-map (kbd "C-w C-w") (lambda () (next-window)))
                                         ;(define-key python-mode-map (kbd "C-w C-w") 'next-window)
+
 (defun send-python-line ()
     (interactive)
     (save-excursion
@@ -733,10 +736,30 @@ before packages are loaded. If you are unsure, you should try in setting them in
       (yank))
     (end-of-line)
     )
+
 (defun send-python-line-next-line ()
-    (send-python-line)
-    (next-line)
-    )
+  (interactive)
+  (save-excursion
+    (setq the_script_buffer (format (buffer-name)))
+    (end-of-line)
+    (kill-region (point) (progn (back-to-indentation) (point)))
+    (if (get-buffer  "*Python*")
+        (message "")
+                                        ;(do
+      (message "No Python buffer")
+                                        ;(python-start-or-switch-repl))
+      )
+    ;; (setq the_py_buffer (format "*Python[%s]*" (buffer-file-name)))
+    (setq the_py_buffer "*Python*")
+    (switch-to-buffer-other-window  the_py_buffer)
+    (goto-char (buffer-end 1))
+    (yank)
+    (comint-send-input)
+    (switch-to-buffer-other-window the_script_buffer)
+    (yank))
+  (end-of-line)
+  (next-line)
+  )
 
 ;; Nada de lo siguiente tuvo prioridad sobre evil-define-key:
 
@@ -761,15 +784,38 @@ before packages are loaded. If you are unsure, you should try in setting them in
 (add-hook 'python-mode-hook
             (lambda ()
               (define-key python-mode-map (kbd "C-<return>") 'send-python-line-next-line)
+              (define-key python-mode-map (kbd "C-c <return>") 'send-python-line-next-line)
+              (define-key python-mode-map (kbd "C-c <C-return>") 'send-python-line-next-line)
+
+              (define-key python-mode-map (kbd "C-e") 'send-python-line)
+              ;(define-key python-mode-map (kbd "C-c e") 'send-python-line)
               (define-key python-mode-map (kbd "C-c C-e") 'send-python-line)
-              (define-key python-mode-map (kbd "C-c e") 'send-python-line)
-              (define-key python-mode-map (kbd "C-c C-n") 'send-python-line)
-              (define-key python-mode-map (kbd "C-c n") 'send-python-line)
+              (define-key python-mode-map (kbd "C-c l") '
+                python-shell-send-buffer)
+              (define-key python-mode-map (kbd "C-c C-l") '
+                python-shell-send-buffer)
+
+              ;; Mi primer script emacs :)
+              (define-key python-mode-map
+                (kbd "C-c C-c")
+                '(lambda ()
+                   (interactive)
+                   (if mark-active
+                     (progn (python-shell-send-region
+                          (region-beginning)
+                          (region-end))
+                        (setq deactivate-mark t))
+                     (send-python-line))))
+
+              ;(define-key python-mode-map (kbd "C-n") 'send-python-line)
+              ;(define-key python-mode-map (kbd "C-c n") 'send-python-line)
+              ;(define-key python-mode-map (kbd "C-c C-n") 'send-python-line)
 
               ;(define-key python-mode-map (kbd "M-j") 'drag-stuff-down)
               ;(define-key python-mode-map (kbd "M-k") 'drag-stuff-up)
                                         ;(define-key python-mode-map "\C-cn" 'send-python-line-next-line)
               ))
+
 
   ;;No funciona (define-key evil-normal-state-map (kbd "x") 'evil-delete-char)
   ;;change because latin keyboard, and fix for x command bug
@@ -882,6 +928,18 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (kbd "C-j") 'drag-stuff-down
   )
 
+;;snipe
+(add-hook 'python-mode-hook
+          (lambda ()
+            (make-variable-buffer-local 'evil-snipe-aliases)
+            (push '(?: "def .+:") evil-snipe-aliases)))
+
+;;(evil-define-key 'motion evil-snipe-mode-map (kbd "C-f") 'evil-snipe-s)
+;;(evil-define-key 'motion evil-snipe-mode-map (kbd "C-F") 'evil-snipe-S)
+(when evil-snipe-override-evil-repeat-keys
+  (evil-define-key 'motion map ";" 'evil-snipe-repeat)
+  (evil-define-key 'motion map "," 'evil-snipe-repeat-reverse))
+
 
 ;(global-set-key (kbd "C-f") 'avy-goto-char-2)
 ;(evil-global-set-key 'normal (kbd "C-f") 'avy-goto-char-2)
@@ -909,7 +967,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (drag-stuff sql-indent clj-refactor pug-mode hide-comnt yesql-ghosts yapfify whitespace-cleanup-mode web-mode tagedit smeargle slim-mode simpleclip scss-mode sass-mode ranger pyvenv pytest pyenv-mode py-isort pip-requirements pdf-tools tablist paxedit orgit org-projectile org-present org org-pomodoro alert log4e gntp org-download mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode lispy zoutline less-css-mode jade-mode isend-mode hy-mode htmlize haml-mode gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor evil-cleverparens emmet-mode cython-mode company-web web-completion-data company-statistics company-anaconda company clojure-snippets inflections edn multiple-cursors paredit peg cider-eval-sexp-fu cider seq queue clojure-mode auto-yasnippet yasnippet anaconda-mode pythonic adjust-parens ac-ispell auto-complete ws-butler window-numbering which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump popup f s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash async aggressive-indent adaptive-wrap ace-window ace-link avy quelpa package-build spacemacs-theme))))
+    (evil-snipe drag-stuff sql-indent clj-refactor pug-mode hide-comnt yesql-ghosts yapfify whitespace-cleanup-mode web-mode tagedit smeargle slim-mode simpleclip scss-mode sass-mode ranger pyvenv pytest pyenv-mode py-isort pip-requirements pdf-tools tablist paxedit orgit org-projectile org-present org org-pomodoro alert log4e gntp org-download mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode lispy zoutline less-css-mode jade-mode isend-mode hy-mode htmlize haml-mode gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor evil-cleverparens emmet-mode cython-mode company-web web-completion-data company-statistics company-anaconda company clojure-snippets inflections edn multiple-cursors paredit peg cider-eval-sexp-fu cider seq queue clojure-mode auto-yasnippet yasnippet anaconda-mode pythonic adjust-parens ac-ispell auto-complete ws-butler window-numbering which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump popup f s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash async aggressive-indent adaptive-wrap ace-window ace-link avy quelpa package-build spacemacs-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

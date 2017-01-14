@@ -818,20 +818,30 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;;No funciona (define-key evil-normal-state-map (kbd "x") 'evil-delete-char)
   ;;change because latin keyboard, and fix for x command bug
 (evil-define-key 'normal evil-cleverparens-mode-map
-    "{" 'evil-cp-previous-opening
-    "}" 'evil-cp-next-closing
-    "[" 'evil-cp-next-opening
-    "]" 'evil-cp-previous-closing
-    ;(kbd "M-[") 'evil-cp-wrap-next-square
-    ;(kbd "M-{") 'evil-cp-wrap-next-curly
-    ;(kbd "M-}") 'evil-cp-wrap-previous-curly
-    ;(kbd "M-]") 'evil-cp-wrap-previous-square
-    "x" 'evil-delete-char
-    )
+  ;; Evil-cp doesn't work well with selected expresions in visual mode
+  ;;(kbd "M-[") 'evil-cp-wrap-next-square
+  ;;(kbd "M-{") 'evil-cp-wrap-next-curly
+  (kbd "M-(") 'paredit-wrap-round
+  (kbd "M-[") 'paredit-wrap-square
+  (kbd "M-{") 'paredit-wrap-curly
+  "{" 'evil-cp-previous-opening
+  "}" 'evil-cp-next-closing
+  "[" 'evil-cp-next-opening
+  "]" 'evil-cp-previous-closing
+  ;;(kbd "M-[") 'evil-cp-wrap-next-square
+  ;;(kbd "M-{") 'evil-cp-wrap-next-curly
+  ;;(kbd "M-}") 'evil-cp-wrap-previous-curly
+  ;;(kbd "M-]") 'evil-cp-wrap-previous-square
+  "x" 'evil-delete-char
+  )
 
 (evil-define-key 'insert evil-cleverparens-mode-map
-  (kbd "M-[") 'evil-cp-wrap-next-square
-  (kbd "M-{") 'evil-cp-wrap-next-curly
+  ;; Evil-cp doesn't work well with selected expresions in visual mode
+  ;;(kbd "M-[") 'evil-cp-wrap-next-square
+  ;;(kbd "M-{") 'evil-cp-wrap-next-curly
+  (kbd "M-(") 'paredit-wrap-round
+  (kbd "M-[") 'paredit-wrap-square
+  (kbd "M-{") 'paredit-wrap-curly
   (kbd "M-}") 'evil-cp-wrap-previous-curly
   (kbd "M-]") 'evil-cp-wrap-previous-square
   )
@@ -861,7 +871,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
                  (kbd "M-r") 'paxedit-sexp-raise
 
                  (kbd "M-o") 'lispy-string-oneline
-                 (kbd "M-(") 'evil-cp-wrap-next-round
+                 ;;(kbd "M-(") 'evil-cp-wrap-next-round
                  (kbd "M-p") 'lispy-clone
                  (kbd "M-\"") 'paredit-meta-doublequote
 
@@ -887,7 +897,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (kbd "M-r") 'paxedit-sexp-raise
 
   (kbd "M-o") 'lispy-string-oneline
-  (kbd "M-(") 'evil-cp-wrap-next-round
+  ;;(kbd "M-(") 'evil-cp-wrap-next-round
   (kbd "M-p") 'lispy-clone
   (kbd "M-\"") 'paredit-meta-doublequote
   )

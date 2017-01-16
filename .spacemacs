@@ -917,6 +917,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (kbd "M-j") 'paxedit-transpose-forward
   (kbd "C-k") 'lispy-move-up
   (kbd "C-j") 'lispy-move-down
+  ;; Para arreglar conflicto con indentación en Python
+  ">" 'evil-cp->
+  "<" 'evil-cp-<
   )
 
 (evil-define-key 'insert lispy-mode-map
@@ -926,7 +929,19 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (kbd "M-j") 'paxedit-transpose-forward
   (kbd "C-k") 'lispy-move-up
   (kbd "C-j") 'lispy-move-down
+  ;; Para arreglar conflicto con indentación en Python
+  ">" 'evil-cp->
+  "<" 'evil-cp-<
   )
+
+;; Para arreglar conflicto con indentación en Python
+(evil-define-key 'visual evil-cleverparens-mode-map
+  ">" '(lambda nil (interactive) (progn (call-interactively (quote
+                                                             evil-shift-right)) (execute-kbd-macro "gv")))
+  "<" '(lambda nil (interactive) (progn (call-interactively (quote
+                                                             evil-shift-left)) (execute-kbd-macro "gv")))
+)
+
 
 ;; Misteriosamente, con python-mode-map no funcionaba pero con evil-cleverparens-mode-map sí y no afectaba a Clojure
 (evil-define-key 'normal evil-cleverparens-mode-map
@@ -934,6 +949,10 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (kbd "M-j") 'drag-stuff-down
   (kbd "C-k") 'drag-stuff-up
   (kbd "C-j") 'drag-stuff-down
+    ; Para arreglar conflicto con indentaciÃ³n en Python
+  ">" 'evil-shift-right
+  "<" 'evil-shift-left
+
   )
 
 (evil-define-key 'insert evil-cleverparens-mode-map

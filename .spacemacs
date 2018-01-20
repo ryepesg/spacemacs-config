@@ -31,35 +31,31 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     sql
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      ivy
-     ;; auto-completion
-     ;; better-defaults
+     auto-completion
+     better-defaults
      emacs-lisp
      git
-     ;; markdown
-     ;; org
+     markdown
+     org
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
      ;; spell-checking
-     ;; syntax-checking
-     ;; version-control
-     clojure
-     auto-completion
-     html
-     markdown
-     org
      syntax-checking
+     version-control
+     react
+     javascript
+     sql
+     html
      smex
-     ranger
-     evil-cleverparens
      python
+     evil-cleverparens
      (evil-snipe :variables evil-snipe-enable-alternate-f-and-t-behaviors t)
      )
    ;; List of additional packages that will be installed without being
@@ -67,21 +63,12 @@ values."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(
-                                      lispy
                                       evil-surround
-                                        ;evil-cleverparens (->> 
                                       isend-mode
-                                      adjust-parens
-                                      paxedit
                                       pdf-tools
-                                      paredit ;este solo para no tener que configurar tanta cosa en la cider-repl
                                       simpleclip
                                       whitespace-cleanup-mode
-                                      yesql-ghosts
                                       drag-stuff
-                                        ;aggressive-indent -> parece integrado ya en las otras layers
-                                        ;expand-region -> parece integrado ya en las otras layers
-                                        ;evil-mc -> no funciona bien por ahora
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -103,13 +90,8 @@ before layers configuration.
 You should not put any user code in there besides modifying the variable
 values."
 
-
-  ;; Nuevo para evitar CIDER inestable
-  ;(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
-  (add-to-list 'package-archives
-               '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-  (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
-  ;(add-to-list 'package-pinned-packages '(clj-refactor . "melpa") t)
+  ;; Para que react-mode detecte también la extensión js
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . react-mode))
 
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
@@ -120,9 +102,9 @@ values."
    ;; This variable has no effect if Emacs is launched with the parameter
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
-   dotspacemacs-elpa-https nil
+   dotspacemacs-elpa-https t
    ;; Maximum allowed time in seconds to contact an ELPA repository.
-   dotspacemacs-elpa-timeout 10
+   dotspacemacs-elpa-timeout 5
    ;; If non nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
    ;; new versions works via git commands, thus it calls GitHub services
@@ -163,8 +145,7 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(
-                         sanityinc-tomorrow-night
+   dotspacemacs-themes '(sanityinc-tomorrow-night
                          material
                          zenburn
                          monokai
@@ -181,6 +162,11 @@ values."
                                :powerline-scale 1.1)
    ;; The leader key
    dotspacemacs-leader-key "SPC"
+   ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
+   ;; (default "SPC")
+   dotspacemacs-emacs-command-key "SPC"
+   ;; The key used for Vim Ex commands (default ":")
+   dotspacemacs-ex-command-key ":"
    ;; The leader key accessible in `emacs state' and `insert state'
    ;; (default "M-m")
    dotspacemacs-emacs-leader-key "M-m"
@@ -188,11 +174,8 @@ values."
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
    dotspacemacs-major-mode-leader-key ","
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
-   ;; (default "C-M-m)
+   ;; (default "C-M-m")
    dotspacemacs-major-mode-emacs-leader-key "C-M-m"
-   ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
-   ;; (default "SPC")
-   dotspacemacs-emacs-command-key "X"
    ;; These variables control whether separate commands are bound in the GUI to
    ;; the key pairs C-i, TAB and C-m, RET.
    ;; Setting it to a non-nil value, allows for separate commands under <C-i>
@@ -281,15 +264,25 @@ values."
    ;; If non nil show the color guide hint for transient state keys. (default t)
    dotspacemacs-show-transient-state-color-guide t
    ;; If non nil unicode symbols are displayed in the mode line. (default t)
-   dotspacemacs-mode-line-unicode-symbols nil
+   dotspacemacs-mode-line-unicode-symbols t
    ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
    dotspacemacs-smooth-scrolling t
-   ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
-   ;; derivatives. If set to `relative', also turns on relative line numbers.
+   ;; Control line numbers activation.
+   ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
+   ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
+   ;; This variable can also be set to a property list for finer control:
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers
+   '(:relative t
+               :disabled-for-modes dired-mode
+               doc-view-mode
+               markdown-mode
+               org-mode
+               pdf-view-mode
+               text-mode
+               :size-limit-kb 1000)
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -330,54 +323,46 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
-  (setq evil-search-module 'evil-search)
   )
 
 (defun dotspacemacs/user-config ()
+  "Configuration function for user code.
+This function is called at the very end of Spacemacs initialization after
+layers configuration.
+This is the place where most of your configurations should be done. Unless it is
+explicitly specified that a variable should be set before a package is loaded,
+you should place your code here."
 
+  ;; UTF8!
+  (set-language-environment 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
 
-(custom-theme-set-faces
- 'sanityinc-tomorrow-night
- ;'(font-lock-comment-face ((t (:foreground "#DFAF8F"))))
- ;'(font-lock-comment-delimiter-face ((t (:foreground "#DFAF8F"))))
- ;'(avy-lead-face ((t (:background "white"))))
- ;'(avy-lead-face-0 ((t (:background "white"))))
- ;'(avy-background-face ((t (:background "gray40"))))
- '(avy-goto-char-timer-face ((t (:background "#084B8A"))))
- )
+  ;; Color en búsqueda con avy
+  (custom-theme-set-faces
+   'sanityinc-tomorrow-night
+   '(avy-goto-char-timer-face ((t (:background "#084B8A"))))
+   )
 
-  ;; para que poder usar historial en evil buffers
-(setq-default evil-search-module 'evil-search)
-
-  ;(spacemacs/toggle-evil-cleverparens-on)
-
-  ;; buffer switching
-                                        ;(define-key evil-normal-state-map "J" 'spacemacs/next-useful-buffer)
-                                        ;(define-key evil-normal-state-map "K" 'spacemacs/previous-useful-buffer)
-(define-key evil-normal-state-map (kbd "<C-next>") 'spacemacs/next-useful-buffer)
-(define-key evil-normal-state-map (kbd "<C-prior>") 'spacemacs/previous-useful-buffer)
-
-                                        ;(global-set-key (kbd "C-S-v") 'yank)
-                                        ;(global-set-key (kbd "C-S-c") 'kill-ring-save)
+  ;; Para poder usar historial en evil buffers
+  (setq-default evil-search-module 'evil-search)
 
   ;; La solución estándar para separar el kill ring del clipboard del sistema operativo no funciona con Evil
-                                        ;(setq save-interprogram-paste-before-kill t)
+  ;;(setq save-interprogram-paste-before-kill t)
   ;; Por ello se requiere simpleclip
-(require 'simpleclip)
-(simpleclip-mode 1)
-(global-set-key (kbd "C-S-v") 'simpleclip-paste)
-(global-set-key (kbd "C-S-c") 'simpleclip-copy)
-                                        ;(setq x-select-enable-clipboard t) ;pegar con clic de la mitad
-                                        ;(setq x-select-enable-primary t)
+  (require 'simpleclip)
+  (simpleclip-mode 1)
+  (global-set-key (kbd "C-S-v") 'simpleclip-paste)
+  (global-set-key (kbd "C-S-c") 'simpleclip-copy)
 
-                                        ;Un problema con evil que hizo regresar a un usuario a Vim, explicado en stackoverflow, no lo entiendo bien
-(fset 'evil-visual-update-x-selection 'ignore)
+  ;;Un problema con evil que hizo regresar a un usuario a Vim, explicado en stackoverflow, no lo entiendo bien
+  (fset 'evil-visual-update-x-selection 'ignore)
 
-  ;;; esc quits
-                                        ;(define-key evil-normal-state-map [escape] 'keyboard-quit)
-                                        ;(define-key evil-visual-state-map [escape] 'keyboard-quit)
-  ;; esc quits
-(defun minibuffer-keyboard-quit ()
+  ;; ESC quits
+  (defun minibuffer-keyboard-quit ()
     "Abort recursive edit.
   In Delete Selection mode, if the mark is active, just deactivate it;
   then it takes a second \\[keyboard-quit] to abort the minibuffer."
@@ -386,311 +371,67 @@ before packages are loaded. If you are unsure, you should try in setting them in
         (setq deactivate-mark  t)
       (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
       (abort-recursive-edit)))
-(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
-(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+  (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
-;; hooks para emacs-lisp, para poder editar cómodamente .spacemacs
-(add-hook 'emacs-lisp-mode-hook #'evil-cleverparens-mode)
+  ;; Hooks para emacs-lisp, para poder editar cómodamente .spacemacs
+  (add-hook 'emacs-lisp-mode-hook #'evil-cleverparens-mode)
 
-  ;; hooks para python
+  ;; Hooks para python
+  (add-hook 'python-mode-hook #'evil-cleverparens-mode)
+  (add-hook 'python-mode-hook 'whitespace-cleanup-mode)
 
-  ;(spacemacs/toggle-evil-cleverparens-on)
-(add-hook 'python-mode-hook #'evil-cleverparens-mode)
-(require 'paxedit)
-(add-hook 'python-mode-hook 'paxedit-mode)
-(add-hook 'python-mode-hook 'whitespace-cleanup-mode)
+  ;; Hooks para js
+  (add-hook 'js-mode-hook #'evil-cleverparens-mode)
+  (add-hook 'js-mode-hook 'whitespace-cleanup-mode)
 
-  ;; hooks para clojure
-(add-hook 'clojure-mode-hook #'aggressive-indent-mode)
-  ;(require 'paxedit)
-(add-hook 'clojure-mode-hook 'paxedit-mode)
-(add-hook 'clojure-mode-hook (lambda () (lispy-mode 1)
-                                 (lispy-set-key-theme '(special evilcp c-digits)) ))
-                                        ;(lispy-set-key-theme '(special paredit c-digits)) ))
-                                        ;(lispy-set-key-theme '(special lispy c-digits)) ))
-(add-hook 'clojure-mode-hook 'whitespace-cleanup-mode)
-                                        ;(spacemacs/toggle-evil-cleverparens-on)
-(add-hook 'clojure-mode-hook #'evil-cleverparens-mode)
-
-(setq evil-move-beyond-eol t)
-(require 'evil-cleverparens-text-objects)
-(require 'evil-surround)
-(global-evil-surround-mode 1)
-
-  ;; it is needed to disable all the cathegory just for a simple change. But it seems like here is NOT needed to rebind all again
-  ;(setq evil-cleverparens-use-additional-bindings nil)
-  ;(define-key evil-insert-state-map (kbd "C-w")   nil)
-  ;(define-key evil-insert-state-map (kbd "C-w C-w")   'ace-window)
-  ;(global-set-key (kbd "C-w") nil)
-  ;(global-set-key (kbd "C-w") 'other-window)
-  ;(global-set-key (kbd "C-w C-w") 'other-window)
-  ;(define-key clojure-mode-map (kbd "C-w") 'ace-window)
-
-  ;; it is needed to disable all the cathegory just for a simple change, so we need to rebind all again
-  ;(setq evil-cleverparens-use-additional-movement-keys nil)
-(define-key evil-normal-state-map (kbd "L")   'evil-cp-forward-sexp)
-(define-key evil-normal-state-map (kbd "H")   'evil-cp-backward-sexp)
-(define-key evil-normal-state-map (kbd "M-l") 'evil-cp-end-of-defun)
-(define-key evil-normal-state-map (kbd "M-h") 'evil-cp-beginning-of-defun)
-                                        ;(define-key evil-normal-state-map (kbd "[")   'evil-cp-next-opening)     ;not used for simplicity (in lispy [ produces [)
-                                        ;(define-key evil-normal-state-map (kbd "]")   'evil-cp-previous-closing) ;not used for simplicity (in lispy ] produces {)
-(define-key evil-normal-state-map (kbd "(")   'evil-cp-backward-up-sexp)
-                                        ;(define-key evil-normal-state-map (kbd ")")   'evil-cp-up-sexp)
-(define-key evil-normal-state-map (kbd ")")   'lispy-right-nostring)
-  ;;; No logré hacer que en el visual normal se haga wrap, toca es en modo insert seleccionar con Shift-arrows
-                                        ;(define-key evil-visual-state-map (kbd "\"")   'lispy-doublequote)
-                                        ;(define-key evil-visual-state-map (kbd "[")   'lispy-braces)
-                                        ;(define-key evil-visual-state-map (kbd "]")   'lispy-braces)
-(eval-after-load "lispy"
-    `(progn
-                                        ;(use-package lispy
-                                        ;  :ensure t
-                                        ;  :init
-                                        ;  (progn
-       ;; replace a global binding with own function
-                                        ;agilidad en teclado latino
-       ;(define-key lispy-mode-map (kbd "]") 'lispy-braces)
-       (define-key lispy-mode-map (kbd "[") 'lispy-brackets)
-       ;(define-key lispy-mode-map (kbd "}") 'lispy-forward)
-       (define-key lispy-mode-map (kbd "{") 'lispy-braces)
-       ;(define-key lispy-mode-map (kbd "{") 'lispy-backward)
-                                        ;(define-key lispy-mode-map (kbd "}") 'paxedit-backward-end)
-                                        ;(define-key lispy-mode-map (kbd "{") 'paxedit-backward-up)
-       ;(define-key lispy-mode-map (kbd "]") 'evil-cp-previous-opening)
-       (define-key lispy-mode-map (kbd "]") 'evil-cp-previous-closing)
-       (define-key lispy-mode-map (kbd "}") 'evil-cp-next-closing)
-
-
-                                        ;consistencia con paredit y cleverparens
-       (define-key lispy-mode-map (kbd "C-<") 'evil-cp-<)
-       (define-key lispy-mode-map (kbd "C->") 'evil-cp->)
-
-
-       (lispy-define-key lispy-mode-map (kbd "y") 'lispy-new-copy)   ;antes n, consistencia con vim
-       (lispy-define-key lispy-mode-map (kbd "f") 'lispy-ace-paren)  ;antes q, consistencia con vimium
-       (lispy-define-key lispy-mode-map (kbd "F") 'lispy-ace-symbol)  ;antes a, consistencia con vimium
-       ;; Ahora que veo que C-q será usado en helm buffer, mejor estandarizar con Lispy
-       ;; Aprovechar el yank de significado inverso que ya quedó libre, tiene sentido porque n/N es usado para encontrar siguiente y anterior
-       (lispy-define-key lispy-mode-map (kbd "n") 'lispy-flow)		 ;antes f
-       (lispy-define-key lispy-mode-map (kbd "N") 'lispy-flow)		 ;antes f, duplicado porque S-n es más natural como en búsqueda con vim
-
-       ;; Esto no está funcionando
-                                        ;(define-key lispy-mode-map (kbd "<M-return>") nil) ;alt+enter es importante para cider y cljr-refactor
-                                        ;(define-key lispy-mode-map (kbd "M-RET") nil) ;alt+enter es importante para cider y cljr-refactor
-                                        ;(lispy-define-key lispy-mode-map (kbd "M-RET") nil)
-
-                                        ;(define-key lispy-mode-map (kbd "M-r") 'lispy-raise-sexp)
-                                        ;(define-key lispy-mode-map (kbd "M-r") 'paxedit-sexp-raise)
-                                        ;(lispy-define-key lispy-mode-map (kbd "M-r") 'paxedit-sexp-raise)
-
-
-    ;;; Modificación asumiendo (lispy-set-key-theme '(special paredit c-digits)))), modificado con lo mejor lispy-map
-                                        ;(define-key lispy-mode-map (kbd "M-)") 'lispy-close-round-and-newline)
-                                        ;(define-key lispy-mode-map (kbd "]") 'lispy-forward)
-                                        ;(define-key lispy-mode-map (kbd "[") 'lispy-backward)
-       (define-key lispy-mode-map (kbd ")") 'lispy-right-nostring)
-       (define-key lispy-mode-map (kbd "M-s") 'lispy-splice)
-                                        ;(define-key lispy-mode-map (kbd "M-<up>") 'lispy-splice-sexp-killing-backward)
-                                        ;(define-key lispy-mode-map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
-
-       (define-key lispy-mode-map (kbd "M-?") 'lispy-convolute-sexp)
-       (define-key lispy-mode-map (kbd "M-S") 'lispy-split)
-       (define-key lispy-mode-map (kbd "M-J") 'lispy-join)
-       (define-key lispy-mode-map (kbd "<C-return>") 'lispy-open-line)
-                                        ;(define-key lispy-mode-map (kbd "<M-return>") 'lispy-meta-return)
-                                        ;(define-key lispy-mode-map (kbd "M-o") 'lispy-string-oneline)
-
-
-
-       ;; Por alguna razón me toca especificar lo de paxedit en ambas partes
-
-       ;; Conflicto si se carga lispy con Python
-       ;(define-key lispy-mode-map (kbd "C-m") 'paxedit-format-1)
-       ;(define-key lispy-mode-map (kbd "C-M") 'paxedit-format-1)
-       (define-key lispy-mode-map (kbd "C-k") 'lispy-move-up)
-       (define-key lispy-mode-map (kbd "C-j") 'lispy-move-down)
-       (define-key lispy-mode-map (kbd "M-k") 'paxedit-transpose-backward)
-       (define-key lispy-mode-map (kbd "M-j") 'paxedit-transpose-forward)
-
-       ))
-
-;(global-set-key (kbd "C-m") 'paxedit-format-1)
-;(global-set-key (kbd "C-M") 'paxedit-format-1)
-;(global-set-key (kbd "C-k") 'lispy-move-up)
-;(global-set-key (kbd "C-j") 'lispy-move-down)
-;(global-set-key (kbd "M-k") 'paxedit-transpose-backward)
-;(global-set-key (kbd "M-j") 'paxedit-transpose-forward)
-
-  ;; Go to definition, CIDER
-(global-set-key (kbd "S-RET") 'cider-find-dwim)
-(global-set-key (kbd "S-<return>") 'cider-find-dwim)
-(global-set-key (kbd "C-S-RET") 'cider-find-dwim-other-window)
-(global-set-key (kbd "C-S-<return>") 'cider-find-dwim-other-window)
+  ;; Comportamiento alrededor de los objetos
+  (setq evil-move-beyond-eol t)
+  (require 'evil-cleverparens-text-objects)
+  (require 'evil-surround)
+  (global-evil-surround-mode 1)
 
   ;; Imagenes
-                                        ;(global-set-key (kbd "C-d") 'lispy-delete)
-                                        ;(define-key lispy-mode-map (kbd "C-d") 'lispy-delete)
-                                        ;(setq org-download-image-dir "~/docs/img/")
-                                        ;(setq-default org-download-method 'directory)
-                                        ;(setq-default org-download-image-dir "~/docs/img")
-(setq org-toggle-inline-images t)
-(global-visual-line-mode t)
+  (setq org-toggle-inline-images t)
+  (global-visual-line-mode t)
 
-                                        ;para abrir shell vertical
-(setq split-width-threshold 0)
-(setq split-height-threshold nil)
+  ;; Para abrir shell vertical
+  (setq split-width-threshold 0)
+  (setq split-height-threshold nil)
 
   ;; Para hacer wrap in org mode
-(add-hook 'text-mode-hook 'auto-fill-mode)
-
-  ;; Busqueda fácil por defecto no viene incluida - ya no es necesario desde spacemacs 105
-                                        ;(evil-leader/set-key "/" 'spacemacs/helm-project-smart-do-search)
-                                        ;(evil-leader/set-key "*" 'spacemacs/helm-project-smart-do-search-region-or-symbol)
-
-                                        ;(evil-leader/set-key "yy" 'spacemacs/helm-project-smart-do-search-region-or-symbol)
+  (add-hook 'text-mode-hook 'auto-fill-mode)
 
   ;; Aprendí en .emacs.d/layers/+distribution/spacemacs...
   ;; https://github.com/syl20bnr/spacemacs/blob/master/doc/VIMUSERS.org
 
-(spacemacs/set-leader-keys "SPC" 'avy-goto-char-2)
-                                        ;"q" 'avy-goto-line  ;; requiere hacks en spacemacs para que pueda funcionar, sabiendo que en realidad saltar a la línea no es algo que use con frecuencia, además que ya no uso helm-buffer, luego no necesito congruencia con q
+  (spacemacs/set-leader-keys "SPC" 'avy-goto-char-2)
 
-  ;; No se por qué no me funciona con dos letras, pero igual no es prioritario
-                                        ;(spacemacs/set-leader-keys
-                                        ;  "ys" 'spacemacs/save-buffers-kill-emacs
-                                        ;  "yq" 'spacemacs/prompt-kill-emacs
-                                        ;  "yQ" 'spacemacs/kill-emacs
-                                        ;  "yd" 'spacemacs/frame-killer)
+  ;; Neotree movements
+  (require 'neotree)
+  (define-key neotree-mode-map (kbd "C-w C-w") 'other-window)
+  (define-key neotree-mode-map (kbd "C-w m") 'spacemacs/toggle-maximize-buffer)
+  (define-key evil-normal-state-map (kbd "C-w m") 'spacemacs/toggle-maximize-buffer)
 
-  ;; Multiple cursors no reconoce comandos de evil-celverparens
-                                        ;(require 'evil-mc)
-                                        ;(global-evil-mc-mode 1)
-
-                                        ;(require 'clj-refactor)
-(setq cider-repl-display-help-banner nil) 
-                                        ;(setq cljr-suppress-middleware-warnings t) ;no muestre WARNINGS de incompatibilidades, eso es imposible de solucinar entre CIDER y clj-refactor
-(defun my-clojure-mode-hook ()
-    (clj-refactor-mode 1)
-    (yas-minor-mode 1) ; for adding require/use/import statements
-    ;; This choice of keybinding leaves cider-macroexpand-1 unbound
-                                        ;(cljr-add-keybindings-with-prefix "C-c C-m")
-    (cljr-add-keybindings-with-prefix "M-<return>")
-    )
-(add-hook 'clojure-mode-hook #'my-clojure-mode-hook)
-(global-set-key (kbd "M-<return>") nil)
-
-  ;; Antes pensaba en que sería deseable que la repl estuviera en modo insert, pero es realmente un complique
-  ;; mejor simplemente no usar la REPL y evaual todo desde el archivo con C-c C-c o C-c C-e
-                                        ;(add-hook 'cider-repl-mode 'evil-insert-state)
-(use-package clojure-mode :ensure t)
-(use-package cider
-    :ensure t
-    :init
-    (progn
-                                        ;(add-hook 'cider-repl-mode-hook #'paredit-mode)
-                                        ;(define-key cider-repl-mode-map (kbd "C-l") 'cider-repl-clear-buffer)
-                                        ;(define-key cider-repl-mode-map (kbd "C-w") 'cider-switch-to-last-clojure-buffer)
-      ;;(evil-leader/set-key-for-mode 'clojure-mode "e" 'cider-eval-last-sexp-to-repl)
-      (evil-set-initial-state 'cider-repl-mode 'emacs)
-                                        ;(define-key evil-normal-state-map (kbd "C-c e") 'cider-eval-last-sexp-to-repl)
-                                        ;(define-key evil-insert-state-map (kbd "C-c e") 'cider-eval-last-sexp-to-repl)
-      (define-key clojure-mode-map (kbd "C-c e") 'cider-eval-last-sexp-to-repl)
-      ))
-(add-hook 'cider-repl-mode-hook #'paredit-mode)
-(define-key cider-repl-mode-map (kbd "C-h") 'cider-switch-to-last-clojure-buffer)
-                                        ;(define-key cider-repl-mode-map (kbd "C-w C-w") 'cider-switch-to-last-clojure-buffer)
-(define-key cider-repl-mode-map (kbd "C-w C-w") 'evil-window-left)
-                                        ;(define-key cider-repl-mode-map (kbd "C-w C-w") 'other-window)
-(require 'neotree)
-(define-key neotree-mode-map (kbd "C-w C-w") 'other-window)
-(define-key neotree-mode-map (kbd "C-w m") 'spacemacs/toggle-maximize-buffer)
-(define-key cider-repl-mode-map (kbd "C-w m") 'spacemacs/toggle-maximize-buffer)
-(define-key evil-normal-state-map (kbd "C-w m") 'spacemacs/toggle-maximize-buffer)
-(define-key clojure-mode-map (kbd "C-w m") 'spacemacs/toggle-maximize-buffer)
-                                        ;(define-key evil-insert-state-map (kbd "C-w m") 'spacemacs/toggle-maximize-buffer)
-(define-key cider-repl-mode-map (kbd "C-l") 'cider-repl-clear-buffer)
-
-  ;; ace-window no es necesario porque en realidad SPC-w-w es suficientemente rápido
-                                        ;(define-key clojure-mode-map (kbd "C-w") 'ace-window)
-                                        ;(define-key global-map (kbd "C-w") 'ace-window)
-                                        ;(global-set-key (kbd "M-p") 'ace-window)
-
-                                        ; Para que no muestre ese feo match de paréntesis similar a como hace vim
-(with-eval-after-load 'smartparens
-    (show-smartparens-global-mode -1))
-
-  ;; me ocurrió el undo-tree-canary problem, así que deshabilito undo-tree hasta
-  ;; que evil solucione el issue, es crítico porque se pierde el historial en el momento
-  ;; que uno graba, es decir mientras uno no grabe, todo bien con undo-tree
-  ;; https://bitbucket.org/lyro/evil/issues/522/when-saving-the-buffer-change-list-got
-  ;; (global-undo-tree-mode -1)
-  ;; El problema ahora es que redo no funciona. Por ahora trataré de mitigar con magit mejor.
-(require 'adjust-parens)
-(add-hook 'clojure-mode-hook #'adjust-parens-mode)
-(define-key clojure-mode-map (kbd "TAB") 'lisp-indent-adjust-paren)
-                                        ;(local-set-key (kbd "TAB") 'lisp-indent-adjust-parens)
-                                        ;(define-key evil-insert-state-map (kbd "TAB") 'lisp-indent-adjust-parens)
+  ;; Para que no muestre ese match de paréntesis similar a como hace vim
+  (with-eval-after-load 'smartparens (show-smartparens-global-mode -1))
 
   ;; Ivy con smex, ver http://oremacs.com/2015/04/16/ivy-mode/
-(setq smex-completion-method 'ivy)
-(setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
-                                        ;(global-set-key (kbd "M-x") 'counsel-M-x)
+  (setq smex-completion-method 'ivy)
+  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
 
   ;; Mostrar buffers que no han sido guardados, como lo hace helm
-(custom-set-faces
+  (custom-set-faces
    '(ivy-modified-buffer ((t (:foreground "#ffa500")))))
 
-  ;; Evitar crear múltiples buffers al abrir ranger
-                                        ;When disabling the mode you can choose to kill the buffers that were opened while browsing the directories.
-(setq ranger-cleanup-on-disable t)
-                                        ;Or you can choose to kill the buffer just after you move to another entry in the dired buffer.
-(setq ranger-cleanup-eagerly t)
-
-  ;;Ranger has the ability to be used as the default directory handler when Emacs identifies a directory is opened. To make deer the default handler, set ranger-override-dired and restart.
-(setq ranger-override-dired t)
-
-  ;;You can choose to show previews literally, or through find-file, toggled by zi.
-(setq ranger-show-literal nil)
-
-                                        ;To set the max files size (in MB)
-(setq ranger-max-preview-size 5)
-
-  ;; Puede haber interferencia entre ranger y dired, por ello ser recomienda el siguiente hook: https://github.com/syl20bnr/spacemacs/issues/3505
-  ;; espero no tener el inconveniente evitando usar dired, y en vez de ello solo ranger
-  ;; por hora usare solo deer, pues nada que logro evitar todos esos buffers abiertos
-  ;;(add-hook 'dired-mode-hook 'deer)
-
-  ;; para continuar de modo continuo viendo pdf y no tener que hacer C-u
-(setq doc-view-continuous t)
-
-  ;; Recomendado en la guía de figwheel para M-x cider-jack-in-clojurescript
-(require 'cider)
-(defun cider-figwheel-repl ()
-    (interactive)
-    (save-some-buffers)
-    (with-current-buffer (cider-current-repl-buffer)
-      (goto-char (point-max))
-      (insert "(require 'figwheel-sidecar.repl-api)
-             (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
-             (figwheel-sidecar.repl-api/cljs-repl)")
-      (cider-repl-return)))
-(define-key clojure-mode-map (kbd "C-c M-j") 'cider-figwheel-repl)
-(defun cider-figwheel-send-to-repl ()
-    (interactive)
-    (let ((s (buffer-substring-no-properties
-              (nth 0 (cider-last-sexp 'bounds))
-              (nth 1 (cider-last-sexp 'bounds)))))
-      (with-current-buffer (cider-current-connection)
-        (insert s)
-        (cider-repl-return))))
-(define-key clojure-mode-map (kbd "C-c E") 'cider-figwheel-send-to-repl)
-                                        ;(global-set-key (kbd "C-c M-e") 'cider-figwheel-send-to-repl)
+  ;; Para continuar de modo continuo viendo pdf y no tener que hacer C-u
+  (setq doc-view-continuous t)
 
   ;; Bug of paste on open file with click (issues/5435)
-(add-hook 'spacemacs-buffer-mode-hook (lambda ()
+  (add-hook 'spacemacs-buffer-mode-hook (lambda ()
                                           (set
                                            (make-local-variable
                                             'mouse-1-click-follows-link)
@@ -698,23 +439,11 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
 
   ;; IPython
-                                        ;(require 'isend-mode)
-                                        ;(add-hook 'isend-mode-hook 'isend-default-ipython-setup)
-                                        ;(add-hook 'python-mode-hook #'isend-mode)
-(require 'python)
-(define-key inferior-python-mode-map (kbd "C-w C-w") 'evil-window-next)
-(define-key python-mode-map (kbd "C-c C-z") 'python-start-or-switch-repl)
+  (require 'python)
+  (define-key inferior-python-mode-map (kbd "C-w C-w") 'evil-window-next)
+  (define-key python-mode-map (kbd "C-c C-z") 'python-start-or-switch-repl)
 
-                                        ;(add-hook 'python-mode-hook (lambda ()
-                                        ;                              ;(python-shell-switch-to-shell)
-                                        ;                              ;(python-start-or-switch-repl)
-                                        ;                              (live-py-mode)
-                                        ;                              ))
-                                        ;(define-key python-mode-map (kbd "C-w C-w") (lambda () (evil-window-next 2)))
-                                        ;(define-key python-mode-map (kbd "C-w C-w") (lambda () (next-window)))
-                                        ;(define-key python-mode-map (kbd "C-w C-w") 'next-window)
-
-(defun send-python-line ()
+  (defun send-python-line ()
     (interactive)
     (save-excursion
       (setq the_script_buffer (format (buffer-name)))
@@ -722,9 +451,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
       (kill-region (point) (progn (back-to-indentation) (point)))
       (if (get-buffer  "*Python*")
           (message "")
-                                        ;(do
+        ;; (do
         (message "No Python buffer")
-                                        ;(python-start-or-switch-repl))
+        ;; (python-start-or-switch-repl))
         )
       ;; (setq the_py_buffer (format "*Python[%s]*" (buffer-file-name)))
       (setq the_py_buffer "*Python*")
@@ -737,58 +466,41 @@ before packages are loaded. If you are unsure, you should try in setting them in
     (end-of-line)
     )
 
-(defun send-python-line-next-line ()
-  (interactive)
-  (save-excursion
-    (setq the_script_buffer (format (buffer-name)))
+  (defun send-python-line-next-line ()
+    (interactive)
+    (save-excursion
+      (setq the_script_buffer (format (buffer-name)))
+      (end-of-line)
+      (kill-region (point) (progn (back-to-indentation) (point)))
+      (if (get-buffer  "*Python*")
+          (message "")
+        (message "No Python buffer")
+        )
+      (setq the_py_buffer "*Python*")
+      (switch-to-buffer-other-window  the_py_buffer)
+      (goto-char (buffer-end 1))
+      (yank)
+      (comint-send-input)
+      (switch-to-buffer-other-window the_script_buffer)
+      (yank))
     (end-of-line)
-    (kill-region (point) (progn (back-to-indentation) (point)))
-    (if (get-buffer  "*Python*")
-        (message "")
-                                        ;(do
-      (message "No Python buffer")
-                                        ;(python-start-or-switch-repl))
-      )
-    ;; (setq the_py_buffer (format "*Python[%s]*" (buffer-file-name)))
-    (setq the_py_buffer "*Python*")
-    (switch-to-buffer-other-window  the_py_buffer)
-    (goto-char (buffer-end 1))
-    (yank)
-    (comint-send-input)
-    (switch-to-buffer-other-window the_script_buffer)
-    (yank))
-  (end-of-line)
-  (next-line)
-  )
+    (next-line)
+    )
 
-;; Nada de lo siguiente tuvo prioridad sobre evil-define-key:
-
-;; (with-eval-after-load 'python
-;;   (define-key python-mode-map (kbd "C-k") 'evil-cp-drag-forward)
-;;   (define-key python-mode-map (kbd "C-j") 'evil-cp-drag-backward)
-;;   (define-key python-mode-map (kbd "M-k") 'evil-cp-drag-forward)
-;;   (define-key python-mode-map (kbd "M-j") 'evil-cp-drag-backward)
-;;   (require 'evil-cleverparens)
-;;   (define-key evil-cleverparens-mode-map (kbd "C-k") 'evil-cp-drag-forward)
-;;   (define-key evil-cleverparens-mode-map (kbd "C-j") 'evil-cp-drag-backward)
-;;   (define-key evil-cleverparens-mode-map (kbd "M-k") 'evil-cp-drag-forward)
-;;   (define-key evil-cleverparens-mode-map (kbd "M-j") 'evil-cp-drag-backward)
-;;   )
-
-;; Las versiones de Paxedit son más inteligentes que evil-cp-drag-forward y evil-cp-drag-backward, pero no funciona bien con Python
-;; evil-cp-drag-forward y evil-cp-drag-backward funcionan de modo aceptable en Lisp, pero en Python tienen corner cases malucos
-;; por eso mejor drag-stuff + emacs builtin transpose (M-t)
-(require 'drag-stuff)
-(drag-stuff-mode t)
-(drag-stuff-global-mode 1)
-(add-hook 'python-mode-hook
+  ;; Las versiones de Paxedit son más inteligentes que evil-cp-drag-forward y evil-cp-drag-backward, pero no funciona bien con Python
+  ;; evil-cp-drag-forward y evil-cp-drag-backward funcionan de modo aceptable en Lisp, pero en Python tienen corner cases malucos
+  ;; por eso mejor drag-stuff + emacs builtin transpose (M-t)
+  (require 'drag-stuff)
+  (drag-stuff-mode t)
+  (drag-stuff-global-mode 1)
+  (add-hook 'python-mode-hook
             (lambda ()
               (define-key python-mode-map (kbd "C-<return>") 'send-python-line-next-line)
               (define-key python-mode-map (kbd "C-c <return>") 'send-python-line-next-line)
               (define-key python-mode-map (kbd "C-c <C-return>") 'send-python-line-next-line)
 
               (define-key python-mode-map (kbd "C-e") 'send-python-line)
-              ;(define-key python-mode-map (kbd "C-c e") 'send-python-line)
+              ;; (define-key python-mode-map (kbd "C-c e") 'send-python-line)
               (define-key python-mode-map (kbd "C-c C-e") 'send-python-line)
               (define-key python-mode-map (kbd "C-c l") 'python-shell-send-buffer)
               (define-key python-mode-map (kbd "C-c C-l") 'python-shell-send-buffer)
@@ -799,212 +511,83 @@ before packages are loaded. If you are unsure, you should try in setting them in
                 '(lambda ()
                    (interactive)
                    (if mark-active
-                     (progn (python-shell-send-region
-                          (region-beginning)
-                          (region-end))
-                        (setq deactivate-mark t))
+                       (progn (python-shell-send-region
+                               (region-beginning)
+                               (region-end))
+                              (setq deactivate-mark t))
                      (send-python-line))))
-
-              ;(define-key python-mode-map (kbd "C-n") 'send-python-line)
-              ;(define-key python-mode-map (kbd "C-c n") 'send-python-line)
-              ;(define-key python-mode-map (kbd "C-c C-n") 'send-python-line)
-
-              ;(define-key python-mode-map (kbd "M-j") 'drag-stuff-down)
-              ;(define-key python-mode-map (kbd "M-k") 'drag-stuff-up)
-                                        ;(define-key python-mode-map "\C-cn" 'send-python-line-next-line)
               ))
-
 
   ;;No funciona (define-key evil-normal-state-map (kbd "x") 'evil-delete-char)
   ;;change because latin keyboard, and fix for x command bug
-(evil-define-key 'normal evil-cleverparens-mode-map
-  ;; Evil-cp doesn't work well with selected expresions in visual mode
-  ;;(kbd "M-[") 'evil-cp-wrap-next-square
-  ;;(kbd "M-{") 'evil-cp-wrap-next-curly
-  (kbd "M-(") 'paredit-wrap-round
-  (kbd "M-[") 'paredit-wrap-square
-  (kbd "M-{") 'paredit-wrap-curly
-  "{" 'evil-cp-previous-opening
-  "}" 'evil-cp-next-closing
-  "[" 'evil-cp-next-opening
-  "]" 'evil-cp-previous-closing
-  ;;(kbd "M-[") 'evil-cp-wrap-next-square
-  ;;(kbd "M-{") 'evil-cp-wrap-next-curly
-  ;;(kbd "M-}") 'evil-cp-wrap-previous-curly
-  ;;(kbd "M-]") 'evil-cp-wrap-previous-square
-  "x" 'evil-delete-char
-  )
+  (evil-define-key 'normal evil-cleverparens-mode-map
+    ;; Evil-cp doesn't work well with selected expresions in visual mode
+    (kbd "M-(") 'paredit-wrap-round
+    (kbd "M-[") 'paredit-wrap-square
+    (kbd "M-{") 'paredit-wrap-curly
+    (kbd "M-\"") 'paredit-meta-doublequote
+    "{" 'evil-cp-previous-opening
+    "}" 'evil-cp-next-closing
+    "[" 'evil-cp-next-opening
+    "]" 'evil-cp-previous-closing
+    "x" 'evil-delete-char
+    )
 
-(evil-define-key 'insert evil-cleverparens-mode-map
-  ;; Evil-cp doesn't work well with selected expresions in visual mode
-  ;;(kbd "M-[") 'evil-cp-wrap-next-square
-  ;;(kbd "M-{") 'evil-cp-wrap-next-curly
-  (kbd "M-(") 'paredit-wrap-round
-  (kbd "M-[") 'paredit-wrap-square
-  (kbd "M-{") 'paredit-wrap-curly
-  (kbd "M-}") 'evil-cp-wrap-previous-curly
-  (kbd "M-]") 'evil-cp-wrap-previous-square
-  )
+  (evil-define-key 'insert evil-cleverparens-mode-map
+    ;; Evil-cp doesn't work well with selected expresions in visual mode
+    (kbd "M-(") 'paredit-wrap-round
+    (kbd "M-[") 'paredit-wrap-square
+    (kbd "M-{") 'paredit-wrap-curly
+    (kbd "M-\"") 'paredit-meta-doublequote
+    (kbd "M-}") 'evil-cp-wrap-previous-curly
+    (kbd "M-]") 'evil-cp-wrap-previous-square
+    )
 
-(evil-define-key 'visual evil-cleverparens-mode-map
-  "x" 'evil-delete-char
-  "d" 'evil-delete
-  )
+  (evil-define-key 'visual evil-cleverparens-mode-map
+    "x" 'evil-delete-char
+    "d" 'evil-delete
+    )
 
-;; Lo que es común a Python y Clojure en Paxedit normal mode
-(evil-define-key 'normal evil-cleverparens-mode-map
-                 (kbd "C-o")   'paxedit-compress
-                 (kbd "C-O")   'paxedit-compress
+  ;; Misteriosamente, con python-mode-map no funcionaba pero con evil-cleverparens-mode-map sí y no afectaba a Clojure
+  (evil-define-key 'normal evil-cleverparens-mode-map
+    (kbd "M-k") 'drag-stuff-up
+    (kbd "M-j") 'drag-stuff-down
+    (kbd "C-k") 'drag-stuff-up
+    (kbd "C-j") 'drag-stuff-down
+    )
 
-                 (kbd "M-<up>") 'paxedit-backward-up
-                 (kbd "M-<down>") 'paxedit-backward-end
+  (evil-define-key 'insert evil-cleverparens-mode-map
+    (kbd "M-k") 'drag-stuff-up
+    (kbd "M-j") 'drag-stuff-down
+    (kbd "C-k") 'drag-stuff-up
+    (kbd "C-j") 'drag-stuff-down
+    )
 
-                 (kbd "M-b") 'paxedit-previous-symbol
-                 (kbd "M-w") 'paxedit-next-symbol
-                 (kbd "M-Y") 'paxedit-copy
-                 (kbd "M-r") 'paxedit-sexp-raise
-                 (kbd "M-u") 'paxedit-symbol-change-case
-                 (kbd "M-y") 'paxedit-symbol-copy
-                 (kbd "M-d") 'paxedit-kill
-                 (kbd "M-c") 'paxedit-wrap-comment
+  ;; Snipe
+  (evil-snipe-mode 1)
+  (evil-snipe-override-mode 1)
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (make-variable-buffer-local 'evil-snipe-aliases)
+              (push '(?: "def .+:") evil-snipe-aliases)))
 
-                 (kbd "M-r") 'paxedit-sexp-raise
-
-                 (kbd "M-o") 'lispy-string-oneline
-                 ;;(kbd "M-(") 'evil-cp-wrap-next-round
-                 (kbd "M-p") 'lispy-clone
-                 (kbd "M-\"") 'paredit-meta-doublequote
-
-                 )
-
-;; Lo que es común a Python y Clojure en Paxedit insert mode
-(evil-define-key 'insert evil-cleverparens-mode-map
-  (kbd "C-o")   'paxedit-compress
-  (kbd "C-O")   'paxedit-compress
-
-  (kbd "M-<up>") 'paxedit-backward-up
-  (kbd "M-<down>") 'paxedit-backward-end
-
-  (kbd "M-b") 'paxedit-previous-symbol
-  (kbd "M-w") 'paxedit-next-symbol
-  (kbd "M-Y") 'paxedit-copy
-  (kbd "M-r") 'paxedit-sexp-raise
-  (kbd "M-u") 'paxedit-symbol-change-case
-  (kbd "M-y") 'paxedit-symbol-copy
-  (kbd "M-d") 'paxedit-kill
-  (kbd "M-c") 'paxedit-wrap-comment
-
-  (kbd "M-r") 'paxedit-sexp-raise
-
-  (kbd "M-o") 'lispy-string-oneline
-  ;;(kbd "M-(") 'evil-cp-wrap-next-round
-  (kbd "M-p") 'lispy-clone
-  (kbd "M-\"") 'paredit-meta-doublequote
-  )
+  ;;(evil-define-key 'motion evil-snipe-mode-map (kbd "C-f") 'evil-snipe-s)
+  (define-key evil-normal-state-map (kbd "C-f") 'avy-goto-char-2)
+  ;;https://www.reddit.com/r/spacemacs/comments/44ot4e/how_to_rebind_the_spc_spc_keybinding_to_another/
+  (spacemacs/set-leader-keys "SPC" 'avy-goto-char-timer)
 
 
-                                        ;(define-key lispy-mode-map (kbd "C-m") 'paxedit-format-1)
-                                        ;(define-key lispy-mode-map (kbd "C-M") 'paxedit-format-1)
-                                        ;(define-key lispy-mode-map (kbd "C-k") 'lispy-move-up)
-                                        ;(define-key lispy-mode-map (kbd "C-j") 'lispy-move-down)
-                                        ;(define-key lispy-mode-map (kbd "M-k") 'paxedit-transpose-backward)
-                                        ;(define-key lispy-mode-map (kbd "M-j") 'paxedit-transpose-forward)
+) ;; End dotspacemacs/user-config
 
-(evil-define-key 'normal lispy-mode-map
-  ;(kbd "C-m") 'paxedit-format-1
-  ;(kbd "C-M") 'paxedit-format-1
-  (kbd "M-k") 'paxedit-transpose-backward
-  (kbd "M-j") 'paxedit-transpose-forward
-  (kbd "C-k") 'lispy-move-up
-  (kbd "C-j") 'lispy-move-down
-  ;; Para arreglar conflicto con indentación en Python
-  ">" 'evil-cp->
-  "<" 'evil-cp-<
-  )
-
-(evil-define-key 'insert lispy-mode-map
-  ;(kbd "C-m") 'paxedit-format-1
-  ;(kbd "C-M") 'paxedit-format-1
-  (kbd "M-k") 'paxedit-transpose-backward
-  (kbd "M-j") 'paxedit-transpose-forward
-  (kbd "C-k") 'lispy-move-up
-  (kbd "C-j") 'lispy-move-down
-  ;; Para arreglar conflicto con indentación en Python
-  ">" 'evil-cp->
-  "<" 'evil-cp-<
-  )
-
-;; Para arreglar conflicto con indentación en Python
-(evil-define-key 'visual evil-cleverparens-mode-map
-  ">" '(lambda nil (interactive) (progn (call-interactively (quote
-                                                             evil-shift-right)) (execute-kbd-macro "gv")))
-  "<" '(lambda nil (interactive) (progn (call-interactively (quote
-                                                             evil-shift-left)) (execute-kbd-macro "gv")))
-)
-
-
-;; Misteriosamente, con python-mode-map no funcionaba pero con evil-cleverparens-mode-map sí y no afectaba a Clojure
-(evil-define-key 'normal evil-cleverparens-mode-map
-  (kbd "M-k") 'drag-stuff-up
-  (kbd "M-j") 'drag-stuff-down
-  (kbd "C-k") 'drag-stuff-up
-  (kbd "C-j") 'drag-stuff-down
-    ; Para arreglar conflicto con indentaciÃ³n en Python
-  ">" 'evil-shift-right
-  "<" 'evil-shift-left
-
-  )
-
-(evil-define-key 'insert evil-cleverparens-mode-map
-  (kbd "M-k") 'drag-stuff-up
-  (kbd "M-j") 'drag-stuff-down
-  (kbd "C-k") 'drag-stuff-up
-  (kbd "C-j") 'drag-stuff-down
-  )
-
-;;snipe
-(add-hook 'python-mode-hook
-          (lambda ()
-            (make-variable-buffer-local 'evil-snipe-aliases)
-            (push '(?: "def .+:") evil-snipe-aliases)))
-
-;;(evil-define-key 'motion evil-snipe-mode-map (kbd "C-f") 'evil-snipe-s)
-;;(evil-define-key 'motion evil-snipe-mode-map (kbd "C-F") 'evil-snipe-S)
-(when evil-snipe-override-evil-repeat-keys
-  (evil-define-key 'motion map ";" 'evil-snipe-repeat)
-  (evil-define-key 'motion map "," 'evil-snipe-repeat-reverse))
-
-
-;(global-set-key (kbd "C-f") 'avy-goto-char-2)
-;(evil-global-set-key 'normal (kbd "C-f") 'avy-goto-char-2)
-;(define-key evil-normal-state-map (kbd "C-f") 'avy-goto-char-2)
-;(define-key drag-stuff-mode-map (kbd "C-f") 'avy-goto-char-2)
-;(spacemacs/set-leader-keys "SPC-SPC" 'avy-goto-char-2)
-;(spacemacs/set-leader-keys-for-major-mode 'evil-motion-state-local-map "SPC-SPC" 'avy-goto-char-2)
-;(spacemacs/set-leader-keys "SPC-SPC" 'avy-goto-char-2)
-;(spacemacs/set-leader-keys-for-major-mode 'evil-normal-state-local-map "SPC-SPC" 'avy-goto-char-2)
-;(spacemacs/set-leader-keys "SPC" 'avy-goto-char-2)
-(define-key evil-normal-state-map (kbd "C-f") 'avy-goto-char-2)
-;;https://www.reddit.com/r/spacemacs/comments/44ot4e/how_to_rebind_the_spc_spc_keybinding_to_another/
-(spacemacs/set-leader-keys "SPC" 'avy-goto-char-timer)
-
-)
 
 
   ;; Do not write anything past this comment. This is where Emacs will
   ;; auto-generate custom variable definitions.
-  
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (evil-snipe drag-stuff sql-indent clj-refactor pug-mode hide-comnt yesql-ghosts yapfify whitespace-cleanup-mode web-mode tagedit smeargle slim-mode simpleclip scss-mode sass-mode ranger pyvenv pytest pyenv-mode py-isort pip-requirements pdf-tools tablist paxedit orgit org-projectile org-present org org-pomodoro alert log4e gntp org-download mmm-mode markdown-toc markdown-mode magit-gitflow live-py-mode lispy zoutline less-css-mode jade-mode isend-mode hy-mode htmlize haml-mode gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor evil-cleverparens emmet-mode cython-mode company-web web-completion-data company-statistics company-anaconda company clojure-snippets inflections edn multiple-cursors paredit peg cider-eval-sexp-fu cider seq queue clojure-mode auto-yasnippet yasnippet anaconda-mode pythonic adjust-parens ac-ispell auto-complete ws-butler window-numbering which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump popup f s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash async aggressive-indent adaptive-wrap ace-window ace-link avy quelpa package-build spacemacs-theme))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ivy-modified-buffer ((t (:foreground "#ffa500")))))
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(package-selected-packages
+     (quote
+      (lispy zoutline paxedit evil-cleverparens paredit yapfify whitespace-cleanup-mode web-mode web-beautify unfill tagedit sql-indent smeargle slim-mode simpleclip scss-mode sass-mode pyvenv pytest pyenv-mode py-isort pug-mode pip-requirements pdf-tools tablist orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow livid-mode skewer-mode simple-httpd live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc isend-mode hy-mode htmlize haml-mode gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md fuzzy flyspell-correct-ivy flyspell-correct flycheck-pos-tip pos-tip flycheck evil-snipe evil-magit magit magit-popup git-commit ghub let-alist with-editor emmet-mode drag-stuff diff-hl cython-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ac-ispell auto-complete ws-butler winum which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump popup f dash s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed async aggressive-indent adaptive-wrap ace-window ace-link avy))))

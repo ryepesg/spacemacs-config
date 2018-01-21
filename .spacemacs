@@ -66,8 +66,8 @@ values."
                                       isend-mode
                                       pdf-tools
                                       simpleclip
-                                      whitespace-cleanup-mode
                                       drag-stuff
+                                      whitespace-cleanup-mode
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -161,7 +161,7 @@ values."
    dotspacemacs-leader-key "SPC"
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
    ;; (default "SPC")
-   dotspacemacs-emacs-command-key nil
+   dotspacemacs-emacs-command-key ","
    ;; The key used for Vim Ex commands (default ":")
    dotspacemacs-ex-command-key ":"
    ;; The leader key accessible in `emacs state' and `insert state'
@@ -261,7 +261,7 @@ values."
    ;; If non nil show the color guide hint for transient state keys. (default t)
    dotspacemacs-show-transient-state-color-guide t
    ;; If non nil unicode symbols are displayed in the mode line. (default t)
-   dotspacemacs-mode-line-unicode-symbols t
+   dotspacemacs-mode-line-unicode-symbols nil
    ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
@@ -310,7 +310,7 @@ values."
    ;; `trailing' to delete only the whitespace at end of lines, `changed'to
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
-   dotspacemacs-whitespace-cleanup nil
+   dotspacemacs-whitespace-cleanup 'all
    ))
 
 (defun dotspacemacs/user-init ()
@@ -320,6 +320,7 @@ executes.
  This function is mostly useful for variables that need to be set
 before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
+
   )
 
 
@@ -383,15 +384,20 @@ you should place your code here."
   (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
   ;; Hooks para emacs-lisp, para poder editar cómodamente .spacemacs
-  (add-hook 'emacs-lisp-mode-hook #'evil-cleverparens-mode)
+  ;; El problema es que comandos como > hacen slurp y es difícil de darse cuenta que ocurre, mejor lo deshabilito
+  ;(add-hook 'emacs-lisp-mode-hook #'evil-cleverparens-mode)
+
+  ;; Clean trailing whitespaces in source code
+  (add-hook 'prog-mode-hook 'whitespace-cleanup-mode)
+  ;;(add-hook 'python-mode-hook 'whitespace-cleanup-mode)
+  ;;(add-hook 'js-mode-hook 'whitespace-cleanup-mode)
 
   ;; Hooks para python
   (add-hook 'python-mode-hook #'evil-cleverparens-mode)
-  (add-hook 'python-mode-hook 'whitespace-cleanup-mode)
 
   ;; Hooks para js
   (add-hook 'js-mode-hook #'evil-cleverparens-mode)
-  (add-hook 'js-mode-hook 'whitespace-cleanup-mode)
+  ;(add-hook 'js-mode-hook 'whitespace-cleanup-mode)
 
   ;; Comportamiento alrededor de los objetos
   (setq evil-move-beyond-eol t)
@@ -548,12 +554,23 @@ you should place your code here."
     "d" 'evil-delete
     )
 
+  ;; Para arreglar conflicto con indentación en Python
+  (evil-define-key 'visual evil-cleverparens-mode-map
+    ">" '(lambda nil (interactive) (progn (call-interactively (quote
+                                                               evil-shift-right)) (execute-kbd-macro "gv")))
+    "<" '(lambda nil (interactive) (progn (call-interactively (quote
+                                                               evil-shift-left)) (execute-kbd-macro "gv")))
+    )
+
+
   ;; Misteriosamente, con python-mode-map no funcionaba pero con evil-cleverparens-mode-map sí y no afectaba a Clojure
   (evil-define-key 'normal evil-cleverparens-mode-map
     (kbd "M-k") 'drag-stuff-up
     (kbd "M-j") 'drag-stuff-down
     (kbd "C-k") 'drag-stuff-up
     (kbd "C-j") 'drag-stuff-down
+    ">" 'evil-shift-right
+    "<" 'evil-shift-left
     )
 
   (evil-define-key 'insert evil-cleverparens-mode-map
@@ -573,8 +590,9 @@ you should place your code here."
   ;;(evil-define-key 'motion evil-snipe-mode-map (kbd "C-f") 'evil-snipe-s)
 
 
-) ;; End dotspacemacs/user-config
+  ;; End dotspacemacs/user-config
 
+)
 
 
   ;; Do not write anything past this comment. This is where Emacs will

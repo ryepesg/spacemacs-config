@@ -53,7 +53,6 @@ values."
      javascript
      sql
      html
-     smex
      python
      evil-cleverparens
      (evil-snipe :variables evil-snipe-enable-alternate-f-and-t-behaviors t)
@@ -90,8 +89,6 @@ before layers configuration.
 You should not put any user code in there besides modifying the variable
 values."
 
-  ;; Para que react-mode detecte también la extensión js
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . react-mode))
 
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
@@ -164,7 +161,7 @@ values."
    dotspacemacs-leader-key "SPC"
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
    ;; (default "SPC")
-   dotspacemacs-emacs-command-key "SPC"
+   dotspacemacs-emacs-command-key nil
    ;; The key used for Vim Ex commands (default ":")
    dotspacemacs-ex-command-key ":"
    ;; The leader key accessible in `emacs state' and `insert state'
@@ -325,6 +322,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
   )
 
+
 (defun dotspacemacs/user-config ()
   "Configuration function for user code.
 This function is called at the very end of Spacemacs initialization after
@@ -332,6 +330,13 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+
+  ;; Jump using SPC SPC or C-f
+  (spacemacs/set-leader-keys "SPC" 'evil-avy-goto-char-timer)
+  (define-key evil-normal-state-map (kbd "C-f") 'evil-avy-goto-char-timer)
+
+  ;; Para que react-mode detecte también la extensión js
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . react-mode))
 
   ;; UTF8!
   (set-language-environment 'utf-8)
@@ -408,7 +413,6 @@ you should place your code here."
   ;; Aprendí en .emacs.d/layers/+distribution/spacemacs...
   ;; https://github.com/syl20bnr/spacemacs/blob/master/doc/VIMUSERS.org
 
-  (spacemacs/set-leader-keys "SPC" 'avy-goto-char-2)
 
   ;; Neotree movements
   (require 'neotree)
@@ -418,10 +422,6 @@ you should place your code here."
 
   ;; Para que no muestre ese match de paréntesis similar a como hace vim
   (with-eval-after-load 'smartparens (show-smartparens-global-mode -1))
-
-  ;; Ivy con smex, ver http://oremacs.com/2015/04/16/ivy-mode/
-  (setq smex-completion-method 'ivy)
-  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
 
   ;; Mostrar buffers que no han sido guardados, como lo hace helm
   (custom-set-faces
@@ -564,17 +564,13 @@ you should place your code here."
     )
 
   ;; Snipe
-  (evil-snipe-mode 1)
+  ;; (evil-snipe-mode -1)
   (evil-snipe-override-mode 1)
   (add-hook 'python-mode-hook
             (lambda ()
               (make-variable-buffer-local 'evil-snipe-aliases)
               (push '(?: "def .+:") evil-snipe-aliases)))
-
   ;;(evil-define-key 'motion evil-snipe-mode-map (kbd "C-f") 'evil-snipe-s)
-  (define-key evil-normal-state-map (kbd "C-f") 'avy-goto-char-2)
-  ;;https://www.reddit.com/r/spacemacs/comments/44ot4e/how_to_rebind_the_spc_spc_keybinding_to_another/
-  (spacemacs/set-leader-keys "SPC" 'avy-goto-char-timer)
 
 
 ) ;; End dotspacemacs/user-config
